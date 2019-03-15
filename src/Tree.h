@@ -1,0 +1,246 @@
+#pragma once
+#include "ofMain.h"
+#include "Branch.h"
+#include "GrowthPoint.h"
+#include "Leaf.h"
+#include "globals.h"
+#include "Sun.h"
+
+class Tree {
+public:
+
+  int maxDist = 50;
+  int minDist = 10;
+
+  branch_ptr root;
+  vector<branch_ptr> branches;
+  vector<branch_ptr> endSegmentBranches;
+  vector<Leaf> leaves;
+  branch_ptr currentBranch;
+  vector<GrowthPoint> growthPoints;
+
+  float leafEnergyCost = 10;
+  float branchEnergyCost = 1.;
+  float energy = 10000.;
+  int maxLeafAmount = 100;
+
+  int startingGrowthPoints = 300;
+  float w = ofRandom(300, 800);
+  float h = ofRandom(400, 700);
+  float hOffset = ofGetHeight()*0.4;
+  float rounding = 0.9;
+
+  int lastNumPoints = 0;
+  int samePointsFrames = 0;
+
+  bool trunkFinished = false;
+  bool startPointsSpawned;
+
+  bool doLeaves = true;
+
+
+  Tree(glm::vec2 rootPos) {
+
+    root = branch_ptr( new Branch(NULL,
+      rootPos, // position
+      glm::vec2(0, -1)) // direction
+    );
+
+    branches.push_back(root);
+    currentBranch = root;
+    startingGrowthPoints = floor((w*h)*0.005);
+    rounding = ofRandom(0.7)+.3;
+    hOffset = ofRandom(300)+200;
+
+    startPointsSpawned = false;
+  }
+
+  void spawnGrowthPoints() {
+    for (int i = 0; i<startingGrowthPoints; i++) {
+      float y = ofRandomuf();
+      float xRound = ofRandom(sin(y*PI)) + (1-sin(y*PI))*0.5;
+      float x = ofRandomuf()*(1-rounding) + xRound*rounding;
+      glm::vec2 pos = glm::vec2(x*w-(w/2)+root->pos.x, ofGetHeight() - (y*h+hOffset));
+      growthPoints.push_back(GrowthPoint(pos));
+    }
+    cout << "points spawned " << startingGrowthPoints << endl;
+  }
+
+  void grow() {
+    if (trunkFinished) growBranches();
+    else              growTrunk();
+  }
+
+  void growTrunk() {
+    if (!startPointsSpawned) {
+      startPointsSpawned = true;
+      spawnGrowthPoints();
+    }
+    bool found = false;
+    //while (!found) {
+    for (int i = 0; i < growthPoints.size(); i++) {
+      float dist = glm::distance(currentBranch->pos, growthPoints[i].pos);
+      if (dist < maxDist) {
+        found = true;
+      }
+    }
+    if (!found) {
+      branch_ptr newBranch = currentBranch->next(); // create new branch
+      currentBranch = newBranch;
+      branches.push_back(newBranch);
+    } else {
+      trunkFinished = true;
+    }
+    //}
+  }
+
+
+  void growBranches() {
+    for (int i = 0; i < growthPoints.size(); i++) {
+      GrowthPoint* l = &growthPoints[i];
+      branch_ptr closestBranch = NULL;
+      float smallestDistanceFound = 1000000.;
+      int numBranches = branches.size(); // we don't want to iterate over new branches until the next frame
+      for (int j = 0; j < numBranches; j++) {
+        branch_ptr b = branches[j];
+        float dist = glm::distance(l->pos, b->pos);
+        if (dist < minDist) { // it doesn't count
+          l->reached = true;
+          closestBranch = NULL;
+          smallestDistanceFound = dist;
+          break; // we can break because this growth point has been reached
+        } else if (dist > maxDist) {
+        } else if (closestBranch == NULL ||
+          dist < smallestDistanceFound) {
+          closestBranch = b;
+          smallestDistanceFound = dist;
+        }
+      }
+      if (closestBranch != NULL) {
+        glm::vec2 newDir = l->pos - closestBranch->pos;
+        //newDir += glm::vec2(ofRandomuf()*2, ofRandomuf()*2); // add a small random value to avoid getting stuck between two points
+        newDir = glm::normalize(newDir) * 2.;
+        closestBranch->direction += newDir;
+        closestBranch->count++;
+      }
+    }
+
+
+
+    checkIfStuck();
+
+    growLeaves(1.);
+
+    for (int i = branches.size()-1; i>=0; i--) {
+      branch_ptr b = branches[i];
+      if (b->count > 0) {
+        b->direction /= b->count + 1;
+        if (energy > 0.) {
+          branch_ptr newBranch = b->next();
+          branches.push_back(newBranch);
+          endSegmentBranches.push_back(newBranch);
+          energy -= branchEnergyCost;
+        }
+      }
+      b->reset();
+    }
+
+    // remove branches that are no longer end segments
+    for (int i = endSegmentBranches.size()-1; i>=0; i--) {
+      if (!endSegmentBranches[i]->isEndSegment) endSegmentBranches.erase(endSegmentBranches.begin() + i);
+    }
+  }
+
+  void checkIfStuck() {
+    if (lastNumPoints == growthPoints.size()) {
+      samePointsFrames += 1;
+    } else {
+      lastNumPoints = growthPoints.size();
+      samePointsFrames = 0;
+    }
+
+    if (samePointsFrames > 120) {
+      // if the number of points stay the same we have gotten stuck
+      // therefore, remove all points
+      for (int i = growthPoints.size()-1; i >= 0; i--) {
+        growthPoints.erase(growthPoints.begin() + i);
+      }
+    }
+
+    // remove all reached growthPoints
+    for (int i = growthPoints.size()-1; i >= 0; i--) {
+      if (growthPoints[i].reached) {
+        growthPoints.erase(growthPoints.begin() + i);
+      }
+    }
+  }
+
+  void growLeaves(float probabilityMultiplier) {
+    float leafProbability =  1.- endSegmentBranches.size()*0.002*probabilityMultiplier;
+    if (ofRandom(1.0) > leafProbability && energy > leafEnergyCost && leaves.size() < maxLeafAmount) {
+      if (endSegmentBranches.size() > 0) {
+        branch_ptr b = endSegmentBranches[floor(ofRandom(endSegmentBranches.size()))];
+        // find branch by traversing from end branches
+        int skipsFromEnd = 0; //floor((1.-pow(ofRandom(1.), 2.))*endSegmentBranches.size()*0.1);
+        while (skipsFromEnd > 0) {
+          b = b->parent;
+          skipsFromEnd--;
+        }
+        if (b->thickness < 10.) {
+          Leaf newLeaf = Leaf(b, 0.5);
+          leaves.push_back(newLeaf);
+          energy -= leafEnergyCost;
+        }
+      }
+    }
+  }
+
+  ofColor branchColorByIndex(int i) {
+    return ofColor(i*0.2, ofClamp(i*0.2-100, 0, 255), ofClamp(i*0.2-200, 0, 255));
+  }
+
+  void show(ofTrueTypeFont font, float totalTime) {
+
+    for (int i = 0; i < growthPoints.size(); i++) {
+      growthPoints[i].show();
+    }
+
+
+    for (int i = 0; i < branches.size(); i++) {
+
+      branches[i]->show(branchColorByIndex(i));
+    }
+
+    if (doLeaves) {
+      for (int i = 0; i < leaves.size(); i++) {
+        leaves[i].show(totalTime);
+      }
+    }
+
+    if (overlay) {
+      string eg = "energy: " + to_string(energy);
+      ofSetColor(255);
+      font.drawString(eg, root->pos.x-100, ofGetHeight()-(h+hOffset));
+    }
+
+    // show latest branch
+    // Branch b = branches.get(branches.size()-1);
+    // ellipse(b.pos.x, b.pos.y, 20, 20);
+  }
+
+
+
+  void update(float dt, Sun sun) {
+    if (doLeaves) {
+      for (int i = leaves.size()-1; i >= 0; i--) {
+        energy += leaves[i].getEnergy(sun);
+        leaves[i].update(dt);
+        if (leaves[i].dead) leaves.erase(leaves.begin() + i);
+      }
+    }
+
+    for (int i = 0; i < branches.size(); i++) {
+      branches[i]->update();
+    }
+  }
+};
