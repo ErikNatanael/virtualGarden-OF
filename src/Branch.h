@@ -12,8 +12,8 @@ public:
   std::shared_ptr<Branch> parent;
   glm::vec2 direction;
   glm::vec2 originalDirection;
-  int count;
-  float length = 3;
+  int count = 0;
+  float length = 10;
   bool isEndSegment = true;
   bool canSpawn = true;
 
@@ -23,7 +23,7 @@ public:
   Branch();
   Branch(std::shared_ptr<Branch> parent_, glm::vec2 p_, glm::vec2 d_);
   std::shared_ptr<Branch> next();
-  void reset();
+  void resetBranch();
   void show(ofColor col);
   void propagateGrowth(float growthAmount);
   void update();

@@ -103,12 +103,18 @@ public:
         branches.push_back(newBranch);
         endSegmentBranches.push_back(newBranch);
       }
-      b->reset();
+      b->resetBranch();
     }
 
     // remove branches that are no longer end segments
     for (int i = endSegmentBranches.size()-1; i>=0; i--) {
       if (!endSegmentBranches[i]->isEndSegment) endSegmentBranches.erase(endSegmentBranches.begin() + i);
+    }
+    // remove all reached growthPoints
+    for (int i = growthPoints.size()-1; i >= 0; i--) {
+      if (growthPoints[i].reached) {
+        growthPoints.erase(growthPoints.begin() + i);
+      }
     }
   }
 

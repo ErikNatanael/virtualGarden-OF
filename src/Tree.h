@@ -86,6 +86,7 @@ public:
     }
     if (!found) {
       branch_ptr newBranch = currentBranch->next(); // create new branch
+
       currentBranch = newBranch;
       branches.push_back(newBranch);
     } else {
@@ -96,12 +97,12 @@ public:
 
 
   void growBranches() {
+
     for (int i = 0; i < growthPoints.size(); i++) {
       GrowthPoint* l = &growthPoints[i];
       branch_ptr closestBranch = NULL;
       float smallestDistanceFound = 1000000.;
-      int numBranches = branches.size(); // we don't want to iterate over new branches until the next frame
-      for (int j = 0; j < numBranches; j++) {
+      for (int j = 0; j < branches.size(); j++) {
         branch_ptr b = branches[j];
         float dist = glm::distance(l->pos, b->pos);
         if (dist < minDist) { // it doesn't count
@@ -118,14 +119,12 @@ public:
       }
       if (closestBranch != NULL) {
         glm::vec2 newDir = l->pos - closestBranch->pos;
-        //newDir += glm::vec2(ofRandomuf()*2, ofRandomuf()*2); // add a small random value to avoid getting stuck between two points
+        newDir += glm::vec2(ofRandomuf()*4, ofRandomuf()*4); // add a small random value to avoid getting stuck between two points
         newDir = glm::normalize(newDir) * 2.;
         closestBranch->direction += newDir;
         closestBranch->count++;
       }
     }
-
-
 
     checkIfStuck();
 
@@ -142,12 +141,17 @@ public:
           energy -= branchEnergyCost;
         }
       }
-      b->reset();
+      b->resetBranch();
     }
-
     // remove branches that are no longer end segments
     for (int i = endSegmentBranches.size()-1; i>=0; i--) {
       if (!endSegmentBranches[i]->isEndSegment) endSegmentBranches.erase(endSegmentBranches.begin() + i);
+    }
+    // remove all reached growthPoints
+    for (int i = growthPoints.size()-1; i >= 0; i--) {
+      if (growthPoints[i].reached) {
+        growthPoints.erase(growthPoints.begin() + i);
+      }
     }
   }
 
@@ -163,13 +167,6 @@ public:
       // if the number of points stay the same we have gotten stuck
       // therefore, remove all points
       for (int i = growthPoints.size()-1; i >= 0; i--) {
-        growthPoints.erase(growthPoints.begin() + i);
-      }
-    }
-
-    // remove all reached growthPoints
-    for (int i = growthPoints.size()-1; i >= 0; i--) {
-      if (growthPoints[i].reached) {
         growthPoints.erase(growthPoints.begin() + i);
       }
     }
@@ -223,12 +220,55 @@ public:
       font.drawString(eg, root->pos.x-100, ofGetHeight()-(h+hOffset));
     }
 
+    // branch heatmap (shows where the most amount of branches are)
+    ofSetColor(255, 1, 2, 2);
+    for(branch_ptr b : branches) {
+      ofDrawEllipse(b->pos.x, b->pos.y, 10, 10);
+    }
+
     // show latest branch
     // Branch b = branches.get(branches.size()-1);
     // ellipse(b.pos.x, b.pos.y, 20, 20);
   }
 
+  void simplifyTree(float distanceThreshold) {
 
+
+  }
+
+  void checkBranchSamePosition() {
+    int num = 0;
+    for(int i = 0; i < branches.size(); i++) {
+      auto ba = branches[i];
+      for(int j = i + 1; j < branches.size(); j++) {
+        auto bb = branches[j];
+          if(ba->pos.x == bb->pos.x &&
+            ba->pos.y == bb->pos.y) {
+              num++;
+            }
+      }
+    }
+    cout << "Number of branches: " << branches.size() << endl;
+    cout << "Number of branches at the same position as another branch: " << num << endl;
+  }
+  void checkBranchSameParent() {
+    int num = 0;
+    for(int i = 0; i < branches.size(); i++) {
+      auto ba = branches[i];
+      for(int j = i + 1; j < branches.size(); j++) {
+        auto bb = branches[j];
+          if((ba->parent) == (bb->parent))
+              num++;
+      }
+    }
+    cout << "Number of branches with the same parents: " << num << endl;
+  }
+
+  void moveAllBranches(glm::vec2 move) {
+    for(branch_ptr b : branches) {
+      b->pos += move;
+    }
+  }
 
   void update(float dt, Sun sun) {
     if (doLeaves) {

@@ -23,6 +23,7 @@
 
 /bin/*
 !/bin/data/
+/bin/data/screenshots/*
 
 # general
 

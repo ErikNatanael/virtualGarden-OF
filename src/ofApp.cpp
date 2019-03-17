@@ -6,7 +6,7 @@ bool overlay = true;
 //--------------------------------------------------------------
 void ofApp::setup(){
 
-  ofSetWindowTitle("OF: Virtual Garden");
+  ofSetWindowTitle("!openFrameworks!: Virtual Garden");
 
   font.load("SpaceMono-Regular.ttf", 20);
 
@@ -109,7 +109,19 @@ void ofApp::keyPressed(int key){
     grabImg.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
     grabImg.save("screenshots/screenshot" + ofGetTimestampString() + ".png");
   }
+  if (key == 'c') {
+    trees[0].checkBranchSamePosition();
+    trees[0].checkBranchSameParent();
+  }
   if (key == 'p') pause = !pause;
+  switch(key) {
+    case OF_KEY_LEFT:
+      trees[0].moveAllBranches(glm::vec2(-50, 0));
+      break;
+    case OF_KEY_RIGHT:
+      trees[0].moveAllBranches(glm::vec2(50, 0));
+      break;
+  }
 
 }
 

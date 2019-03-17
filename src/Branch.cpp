@@ -18,7 +18,7 @@ branch_ptr Branch::next() {
   return branch_ptr(new Branch(shared_from_this(), pos + nextDir, direction));
 }
 
-void Branch::reset() {
+void Branch::resetBranch() {
   direction = originalDirection;
   count = 0;
 }
