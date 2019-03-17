@@ -121,6 +121,13 @@ void ofApp::keyPressed(int key){
     case OF_KEY_RIGHT:
       trees[0].moveAllBranches(glm::vec2(50, 0));
       break;
+    case 'x':
+      static float thresh = 1;
+      for(auto& t : trees) {
+        t.simplifyTree(10);
+      }
+      thresh += 1;
+      break;
   }
 
 }

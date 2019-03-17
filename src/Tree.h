@@ -136,9 +136,12 @@ public:
         b->direction /= b->count + 1;
         if (energy > 0.) {
           branch_ptr newBranch = b->next();
-          branches.push_back(newBranch);
-          endSegmentBranches.push_back(newBranch);
-          energy -= branchEnergyCost;
+          // reject branches that are too close
+          if(glm::distance(b->pos, newBranch->pos) > 2.) {
+            branches.push_back(newBranch);
+            endSegmentBranches.push_back(newBranch);
+            energy -= branchEnergyCost;
+          }
         }
       }
       b->resetBranch();
@@ -232,7 +235,27 @@ public:
   }
 
   void simplifyTree(float distanceThreshold) {
+    for(int i = 0; i < 100; i++) {
+      root->simplifyChildren(distanceThreshold); // recursively go through the tree structure from the root
 
+      // remove branches that have been deleted
+      for(int i = branches.size()-1; i>=0; i--) {
+        if(branches[i]->isDeleted) branches.erase(branches.begin()+i);
+      }
+    }
+
+  }
+
+  // doesn't work
+  void simplifyTreeEveryOther() {
+    for(int i = 2; i < branches.size(); i+=2) {
+      branches[i]->parent = branches[i]->parent->parent;
+      branches[i]->originalRelativePos += branches[i]->parent->originalRelativePos;
+    }
+    for(int i = 1; i < branches.size(); i+=2) {
+      branches.erase(branches.begin() + i);
+      i--;
+    }
 
   }
 

@@ -8,14 +8,16 @@
 class Branch : public std::enable_shared_from_this<Branch> {
 public:
   glm::vec2 pos;
-  glm::vec2 originalPos;
+  glm::vec2 originalRelativePos;
   std::shared_ptr<Branch> parent;
+  vector<std::weak_ptr<Branch> > children;
   glm::vec2 direction;
   glm::vec2 originalDirection;
   int count = 0;
-  float length = 10;
+  float length = 3;
   bool isEndSegment = true;
   bool canSpawn = true;
+  bool isDeleted = false;
 
   float thickness = 1.;
   float thicknessGrowth = 0.01;
@@ -28,6 +30,8 @@ public:
   void propagateGrowth(float growthAmount);
   void update();
   void propagateWind();
+  void simplifyChildren(float distanceThreshold);
+  void deleteBranch();
 
 };
 
