@@ -25,8 +25,8 @@ public:
   int maxLeafAmount = 100;
 
   int startingGrowthPoints = 300;
-  float w = ofRandom(300, 800);
-  float h = ofRandom(400, 700);
+  float w = ofRandom(100, 300);
+  float h = ofRandom(200, 400);
   float hOffset = ofGetHeight()*0.4;
   float rounding = 0.9;
 
@@ -55,26 +55,47 @@ public:
     startPointsSpawned = false;
   }
 
-  void spawnGrowthPoints() {
-    for (int i = 0; i<startingGrowthPoints; i++) {
+  void spawnGrowthPoints(int numGrowthPoints) {
+    for (int i = 0; i<numGrowthPoints; i++) {
       float y = ofRandomuf();
       float xRound = ofRandom(sin(y*PI)) + (1-sin(y*PI))*0.5;
       float x = ofRandomuf()*(1-rounding) + xRound*rounding;
       glm::vec2 pos = glm::vec2(x*w-(w/2)+root->pos.x, ofGetHeight() - (y*h+hOffset));
       growthPoints.push_back(GrowthPoint(pos));
     }
-    cout << "points spawned " << startingGrowthPoints << endl;
+  }
+
+  void spawnGrowthPointsAroundEdge(int numGrowthPoints, int width, int height) {
+    for (int i = 0; i<numGrowthPoints; i++) {
+      float y = ofRandomuf();
+      float xRound = ofRandom(sin(y*PI)) + (1-sin(y*PI))*0.5;
+      float x = ofRandomf();
+      float xside = x > 0 ? w/2 : w/-2;
+      float xpos = root->pos.x + abs(x) * width + xside;
+      float ypos = ofGetHeight() - (y*(h+height)+hOffset);
+      glm::vec2 pos = glm::vec2(xpos, ypos);
+      growthPoints.push_back(GrowthPoint(pos));
+    }
+    w += width;
+    h += height;
   }
 
   void grow() {
-    if (trunkFinished) growBranches();
-    else              growTrunk();
+    if (!trunkFinished) growTrunk();
+
+    else {
+      growBranches();
+    }
+  }
+
+  void makeBigger() {
+
   }
 
   void growTrunk() {
     if (!startPointsSpawned) {
       startPointsSpawned = true;
-      spawnGrowthPoints();
+      spawnGrowthPoints(startingGrowthPoints);
     }
     bool found = false;
     //while (!found) {

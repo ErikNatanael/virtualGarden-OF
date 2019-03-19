@@ -128,6 +128,14 @@ void ofApp::keyPressed(int key){
       }
       thresh += 1;
       break;
+    case OF_KEY_UP:
+      for(auto& t : trees) {
+        //t.spawnGrowthPointsAroundEdge(20, 20, 20);
+        t.w += 30;
+        t.h += 20;
+        t.spawnGrowthPoints(100);
+      }
+      break;
   }
 
 }
@@ -144,6 +152,12 @@ void ofApp::mouseMoved(int x, int y ){
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
+  if(ofRandomuf() > 0.5) {
+    GrowthPoint temp = GrowthPoint(glm::vec2(x + ofRandomf()*20, y + ofRandomf()*20));
+    for(auto& t : trees) {
+      t.growthPoints.push_back(temp);
+    }
+  }
 
 }
 

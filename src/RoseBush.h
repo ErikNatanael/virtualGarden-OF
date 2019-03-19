@@ -24,7 +24,7 @@ public:
   void grow() {
     if (!startPointsSpawned) {
       startPointsSpawned = true;
-      spawnGrowthPoints();
+      spawnGrowthPoints(startingGrowthPoints);
     }
     growBranches();
   }
