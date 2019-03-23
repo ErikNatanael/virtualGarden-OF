@@ -191,7 +191,7 @@ public:
       samePointsFrames = 0;
     }
 
-    if (samePointsFrames > 120) {
+    if (samePointsFrames > 60) {
       // if the number of points stay the same we have gotten stuck
       // therefore, remove all points
       for (int i = growthPoints.size()-1; i >= 0; i--) {
@@ -223,7 +223,7 @@ public:
   void growBigger() {
     w += growthSpeed.x;
     h += growthSpeed.y;
-    spawnGrowthPoints(100);
+    spawnGrowthPoints(floor((w*h)*0.005));
   }
 
   ofColor branchColorByIndex(int i) {

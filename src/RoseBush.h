@@ -15,10 +15,14 @@ public:
     minDist = 2; // don't make smaller than 2 (branch growing can get stuck)
 
     startingGrowthPoints = 100;
-    h = ofRandom(150, 400);
-    w = ofRandom(70, 20);
+    // h = ofRandom(75, 200);
+    // w = ofRandom(70, 20);
+    w = 10;
+    h = 10;
     hOffset = 0;
     rounding = 0.7;
+    growthSpeed = glm::vec2(ofRandom(2, 5), ofRandom(1, 3));
+    branchEnergyCost = 10.;
   }
 
   void grow() {
@@ -27,6 +31,8 @@ public:
       spawnGrowthPoints(startingGrowthPoints);
     }
     growBranches();
+    if(energy > branchEnergyCost * 5) growBranches();
+    growRoses();
   }
 
   void growBranches() {
@@ -70,25 +76,7 @@ public:
       }
     }
 
-    float leafProbability =  1.- endSegmentBranches.size()*0.0001;
-    if (ofRandomuf() > leafProbability) {
-      if(endSegmentBranches.size() > 0) {
-        branch_ptr b = endSegmentBranches[floor(ofRandom(endSegmentBranches.size()))];
-        // find branch by traversing from end branches
-        /*int skipsFromEnd = floor((1.-pow(random(1.), 2.))*endSegmentBranches.size()*0.1);
-        while (skipsFromEnd > 0) {
-          if (b!=null) b = b.parent;
-          skipsFromEnd--;
-        }*/
-        int maxRoses = floor(branches.size()*0.05);
-        if(roses.size() < maxRoses) {
-          Rose newRose = Rose(b);
-          roses.push_back(newRose);
-        }
 
-
-      }
-    }
 
     checkIfStuck();
 
@@ -96,12 +84,13 @@ public:
 
     for (int i = branches.size()-1; i>=0; i--) {
       branch_ptr b = branches[i];
-      if (b->count > 0) {
+      if (b->count > 0 && energy > branchEnergyCost) {
         b->direction /=  b->count + 1;
         branch_ptr newBranch = b->next();
         newBranch->thicknessGrowth = ofRandomuf()*0.002;
         branches.push_back(newBranch);
         endSegmentBranches.push_back(newBranch);
+        energy -= branchEnergyCost;
       }
       b->resetBranch();
     }
@@ -114,6 +103,29 @@ public:
     for (int i = growthPoints.size()-1; i >= 0; i--) {
       if (growthPoints[i].reached) {
         growthPoints.erase(growthPoints.begin() + i);
+      }
+    }
+  }
+
+  void growRoses() {
+
+    float roseProbability =  1.- endSegmentBranches.size()*0.0001;
+    if (ofRandomuf() > roseProbability) {
+      if(endSegmentBranches.size() > 0) {
+        branch_ptr b = endSegmentBranches[floor(ofRandom(endSegmentBranches.size()))];
+        // find branch by traversing from end branches
+        /*int skipsFromEnd = floor((1.-pow(random(1.), 2.))*endSegmentBranches.size()*0.1);
+        while (skipsFromEnd > 0) {
+          if (b!=null) b = b.parent;
+          skipsFromEnd--;
+        }*/
+        int maxRoses = 4; //floor(endSegmentBranches.size()*0.05);
+        if(roses.size() < maxRoses) {
+          Rose newRose = Rose(b);
+          roses.push_back(newRose);
+        }
+
+
       }
     }
   }
@@ -142,6 +154,13 @@ public:
     }
     for (int i = 0; i < leaves.size(); i++) {
       leaves[i].update(dt);
+    }
+
+    energy += 1.5;
+    if(energy > 100) growBigger();
+
+    if(branches.size() > 300) {
+      simplifyTree(branches.size()*0.01);
     }
   }
 };

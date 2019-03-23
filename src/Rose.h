@@ -22,7 +22,7 @@ public:
     numPetals = 1;
     parentBranch = parentBranch_;
     maxPetals = 4+floor(ofRandom(3));
-    maxSize = 15 + ofRandom(30);
+    maxSize = 7 + ofRandom(10);
   }
 
   void show() {

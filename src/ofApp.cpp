@@ -84,6 +84,7 @@ void ofApp::draw(){
 
     int ngp = 0;
     for (Tree t : trees) ngp += t.growthPoints.size();
+    for (RoseBush t : roseBushes) ngp += t.growthPoints.size();
     string numPoints = "number of points: " + to_string(ngp);
     font.drawString(numPoints, 10, 90);
 
