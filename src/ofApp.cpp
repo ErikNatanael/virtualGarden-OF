@@ -10,7 +10,7 @@ void ofApp::setup(){
 
   font.load("SpaceMono-Regular.ttf", 20);
 
-  int numTrees = 1;
+  int numTrees = 3;
   for (int i = 0; i < numTrees; i++) {
     int x = (ofGetWidth()/(numTrees+1))*(i+1);
     trees.push_back(Tree(glm::vec2(x, ofGetHeight())));

@@ -20,13 +20,13 @@ public:
   vector<GrowthPoint> growthPoints;
 
   float leafEnergyCost = 10;
-  float branchEnergyCost = 1.;
-  float energy = 10000.;
+  float branchEnergyCost = 15.;
+  float energy = 0.;
   int maxLeafAmount = 100;
 
   int startingGrowthPoints = 300;
-  float w = ofRandom(100, 300);
-  float h = ofRandom(200, 400);
+  float w = ofRandom(50, 150);
+  float h = ofRandom(100, 200);
   float hOffset = ofGetHeight()*0.4;
   float rounding = 0.9;
 
@@ -84,7 +84,8 @@ public:
     if (!trunkFinished) growTrunk();
 
     else {
-      growBranches();
+      if(energy > branchEnergyCost * 5) growBranches();
+      growLeaves(1.);
     }
   }
 
@@ -149,7 +150,7 @@ public:
 
     checkIfStuck();
 
-    growLeaves(1.);
+
 
     for (int i = branches.size()-1; i>=0; i--) {
       branch_ptr b = branches[i];
@@ -214,6 +215,12 @@ public:
         }
       }
     }
+  }
+
+  void growBigger() {
+    w += 10;
+    h += 5;
+    spawnGrowthPoints(100);
   }
 
   ofColor branchColorByIndex(int i) {
@@ -315,6 +322,8 @@ public:
   }
 
   void update(float dt, Sun sun) {
+    maxLeafAmount = endSegmentBranches.size();
+
     if (doLeaves) {
       for (int i = leaves.size()-1; i >= 0; i--) {
         energy += leaves[i].getEnergy(sun);
@@ -323,8 +332,12 @@ public:
       }
     }
 
+    energy += 0.5;
+
     for (int i = 0; i < branches.size(); i++) {
       branches[i]->update();
     }
+
+    if(energy > 100) growBigger();
   }
 };

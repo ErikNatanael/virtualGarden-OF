@@ -12,7 +12,7 @@ Leaf::Leaf(branch_ptr parent, float angle_) {
   fillCol = ofColor(100, 200, 100);
   maxSize = ofRandom(7, 15);
 
-  lifeTime = 15.;
+  lifeTime = 30.;
   randomSeed = ofRandom(100);
 }
 
@@ -74,7 +74,7 @@ void Leaf::show(float totalTime) {
 }
 
 float Leaf::getEnergy(Sun sun) {
-  float energy = sun.strength*0.0001*size;
+  float energy = sun.strength*0.00002*size;
   if(falling) return 0;
 
   return energy;
