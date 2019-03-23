@@ -50,7 +50,7 @@ public:
     currentBranch = root;
     startingGrowthPoints = floor((w*h)*0.005);
     rounding = ofRandom(0.7)+.3;
-    hOffset = ofRandom(300)+200;
+    hOffset = ofRandom(100)+50;
 
     startPointsSpawned = false;
   }

@@ -11,7 +11,7 @@ Branch::Branch(branch_ptr parent_, glm::vec2 p_, glm::vec2 d_) {
   }
   direction = d_;
   originalDirection = d_;
-  thicknessGrowth = ofRandomuf()*0.02;
+  thicknessGrowth = ofRandomuf()*0.03 + 0.01;
 }
 
 branch_ptr Branch::next() {
@@ -33,7 +33,15 @@ void Branch::show(ofColor col) {
   if(parent != NULL) {
     ofSetColor(col);
     //strokeWeight(thickness);
-    ofDrawLine(pos.x, pos.y, parent->pos.x, parent->pos.y);
+
+    if(thickness < 10) {
+      ofSetLineWidth(thickness);
+      ofDrawLine(pos.x, pos.y, parent->pos.x, parent->pos.y);
+    } else {
+    float w = pos.x - parent->pos.x;
+    float h = pos.y - parent->pos.y;
+    ofDrawRectangle(pos.x, pos.y, w*thickness, h);
+    }
   }
 }
 
