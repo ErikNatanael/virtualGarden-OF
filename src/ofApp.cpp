@@ -56,7 +56,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-  ofBackground(41+sun.strength*1., 41+sun.strength*1.1, 41+sun.strength*1.4);
+  ofBackground(31+sun.strength*1., 31+sun.strength*1.1, 31+sun.strength*1.4);
   sun.show();
 
   if (doTrees) {
@@ -133,6 +133,8 @@ void ofApp::keyPressed(int key){
         //t.spawnGrowthPointsAroundEdge(20, 20, 20);
         t.w += 30;
         t.h += 20;
+        // t.w *= 1.05;
+        // t.h *= 1.05;
         t.spawnGrowthPoints(100);
       }
       break;

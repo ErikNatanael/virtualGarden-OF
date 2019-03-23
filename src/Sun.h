@@ -24,7 +24,7 @@ public:
 
   void show() {
     //noStroke();
-    ofSetColor(255, 150+strength*1.5, 100 + strength); // more blue = brighter yellow
+    ofSetColor(255, 80+strength*1.5, 65 + strength); // more blue = brighter yellow
     float size = ofGetWidth() - (strength*13);
     ofDrawEllipse(pos.x, pos.y, size, size);
   }

@@ -11,7 +11,7 @@ Branch::Branch(branch_ptr parent_, glm::vec2 p_, glm::vec2 d_) {
   }
   direction = d_;
   originalDirection = d_;
-  thicknessGrowth = ofRandomuf()*0.03 + 0.01;
+  thicknessGrowth = ofRandomuf()*0.02 + 0.01;
 }
 
 branch_ptr Branch::next() {
@@ -38,9 +38,11 @@ void Branch::show(ofColor col) {
       ofSetLineWidth(thickness);
       ofDrawLine(pos.x, pos.y, parent->pos.x, parent->pos.y);
     } else {
-    float w = pos.x - parent->pos.x;
-    float h = pos.y - parent->pos.y;
-    ofDrawRectangle(pos.x, pos.y, w*thickness, h);
+      float w = pos.x - parent->pos.x;
+      float h = pos.y - parent->pos.y;
+      ofDrawEllipse(pos.x, pos.y, abs(w) + thickness, abs(h)*2 + thickness*.5);
+      // weird digital artefact trees
+      ofDrawRectangle(pos.x, pos.y, abs(w)*thickness, h);
     }
   }
 }
