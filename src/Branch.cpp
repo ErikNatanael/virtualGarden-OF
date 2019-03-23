@@ -102,6 +102,12 @@ void Branch::simplifyChildren(float distanceThreshold) {
   }
 }
 
+bool Branch::canGrowBranch() {
+  if(thickness < 15) return true;
+
+  return false;
+}
+
 void Branch::propagateWind() {
 
 }

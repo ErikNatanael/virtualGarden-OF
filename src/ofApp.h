@@ -6,6 +6,8 @@
 #include "RoseBush.h"
 #include "Sun.h"
 
+#define DEBUG
+
 class ofApp : public ofBaseApp{
 
 	public:

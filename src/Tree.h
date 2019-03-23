@@ -30,6 +30,8 @@ public:
   float hOffset = ofGetHeight()*0.4;
   float rounding = 0.9;
 
+  glm::vec2 growthSpeed; // how much the tree will grow in the x and y direction per growth tick
+
   int lastNumPoints = 0;
   int samePointsFrames = 0;
 
@@ -51,6 +53,7 @@ public:
     startingGrowthPoints = floor((w*h)*0.005);
     rounding = ofRandom(0.7)+.3;
     hOffset = ofRandom(100)+50;
+    growthSpeed = glm::vec2(ofRandom(5, 15), ofRandom(5, 15));
 
     startPointsSpawned = false;
   }
@@ -154,9 +157,9 @@ public:
 
     for (int i = branches.size()-1; i>=0; i--) {
       branch_ptr b = branches[i];
-      if (b->count > 0) {
+      if (b->count > 0 && b->canGrowBranch()) {
         b->direction /= b->count + 1;
-        if (energy > 0.) {
+        if (energy > branchEnergyCost) {
           branch_ptr newBranch = b->next();
           // reject branches that are too close
           if(glm::distance(b->pos, newBranch->pos) > 2.) {
@@ -218,8 +221,8 @@ public:
   }
 
   void growBigger() {
-    w += 10;
-    h += 5;
+    w += growthSpeed.x;
+    h += growthSpeed.y;
     spawnGrowthPoints(100);
   }
 
@@ -228,11 +231,6 @@ public:
   }
 
   void show(ofTrueTypeFont font, float totalTime) {
-
-    for (int i = 0; i < growthPoints.size(); i++) {
-      growthPoints[i].show();
-    }
-
 
     for (int i = 0; i < branches.size(); i++) {
 
@@ -249,13 +247,19 @@ public:
       string eg = "energy: " + to_string(energy);
       ofSetColor(255);
       font.drawString(eg, root->pos.x-100, ofGetHeight()-(h+hOffset));
+
+      for (int i = 0; i < growthPoints.size(); i++) {
+        growthPoints[i].show();
+      }
     }
 
     // branch heatmap (shows where the most amount of branches are)
+    #ifdef DEBUG
     ofSetColor(255, 1, 2, 2);
     for(branch_ptr b : branches) {
       ofDrawEllipse(b->pos.x, b->pos.y, 10, 10);
     }
+    #endif
 
     // show latest branch
     // Branch b = branches.get(branches.size()-1);
@@ -320,6 +324,8 @@ public:
       b->pos += move;
     }
   }
+
+
 
   void update(float dt, Sun sun) {
     maxLeafAmount = endSegmentBranches.size();

@@ -32,6 +32,7 @@ public:
   void propagateWind();
   void simplifyChildren(float distanceThreshold);
   void deleteBranch();
+  bool canGrowBranch();
 
 };
 
