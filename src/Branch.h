@@ -18,6 +18,11 @@ public:
   bool isEndSegment = true;
   bool canSpawn = true;
   bool isDeleted = false;
+  bool isDead = false;
+
+  float maxHp = 1;
+  float hp = 1;
+  float damagePerTick = 0.01;
 
   float thickness = 1.;
   float thicknessGrowth = 0.01;
@@ -33,6 +38,8 @@ public:
   void simplifyChildren(float distanceThreshold);
   void deleteBranch();
   bool canGrowBranch();
+  float fillHP(float energy);
+  void killBranch(vector<std::shared_ptr<Branch> >& killedBranches);
 
 };
 

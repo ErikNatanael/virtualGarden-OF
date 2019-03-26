@@ -77,27 +77,32 @@ void ofApp::draw(){
     font.drawString(fps, 10, 30);
 
     int nb = 0;
-    for (Tree t : trees) nb += t.branches.size();
-    for (RoseBush t : roseBushes) nb += t.branches.size();
+    for (Tree& t : trees) nb += t.branches.size();
+    for (RoseBush& t : roseBushes) nb += t.branches.size();
     string numBranches = "number of branches: " + to_string(nb);
     font.drawString(numBranches, 10, 60);
 
     int ngp = 0;
-    for (Tree t : trees) ngp += t.growthPoints.size();
-    for (RoseBush t : roseBushes) ngp += t.growthPoints.size();
+    for (Tree& t : trees) ngp += t.growthPoints.size();
+    for (RoseBush& t : roseBushes) ngp += t.growthPoints.size();
     string numPoints = "number of points: " + to_string(ngp);
     font.drawString(numPoints, 10, 90);
 
     int nl = 0;
-    for (Tree t : trees) nl += t.leaves.size();
-    for (RoseBush t : roseBushes) nl += t.leaves.size();
+    for (Tree& t : trees) nl += t.leaves.size();
+    for (RoseBush& t : roseBushes) nl += t.leaves.size();
     string numLeaves = "number of leaves: " + to_string(nl);
     font.drawString(numLeaves, 10, 120);
 
     int nr = 0;
-    for (RoseBush t : roseBushes) nr += t.roses.size();
+    for (RoseBush& t : roseBushes) nr += t.roses.size();
     string numRoses = "number of roses: " + to_string(nr);
     font.drawString(numRoses, 10, 150);
+
+    int nlb = 0;
+    for (auto& t : trees) nlb += t.looseBranches.size();
+    string numLooseBranches = "number of loose branches: " + to_string(nlb);
+    font.drawString(numLooseBranches, 10, 180);
   }
 
 }

@@ -34,6 +34,10 @@ void Branch::show(ofColor col) {
     ofSetColor(col);
     //strokeWeight(thickness);
 
+    // set color by hp
+    ofSetColor((hp/maxHp) * 255, 0, 0);
+    if(isDead) ofSetColor(255);
+
     if(thickness < 10) {
       ofSetLineWidth(thickness);
       ofDrawLine(pos.x, pos.y, parent->pos.x, parent->pos.y);
@@ -49,6 +53,7 @@ void Branch::show(ofColor col) {
 
 void Branch::propagateGrowth(float growthAmount) {
   thickness += growthAmount;
+  maxHp += damagePerTick;
   if(parent != NULL) parent->propagateGrowth(thicknessGrowth);
 }
 
@@ -56,11 +61,17 @@ void Branch::update() {
   if(parent != NULL)
     pos = parent->pos + originalRelativePos;
   if(thickness > 20.) canSpawn = false;
+
+  if(hp <= 0) {
+    isDead = true;
+    canSpawn = false;
+  }
+  hp -= damagePerTick;
 }
 
 void Branch::deleteBranch() {
   // go through all the child's children
-  for(auto c : children) {
+  for(auto& c : children) {
     if(!c.expired()) {
       auto cPtr = c.lock(); // lock the weak_ptr to get a temporary shared_ptr
       // 1. Set their parent to this Branch's parent
@@ -103,11 +114,53 @@ void Branch::simplifyChildren(float distanceThreshold) {
 }
 
 bool Branch::canGrowBranch() {
-  if(thickness < 15) return true;
-
-  return false;
+  return canSpawn;
 }
 
 void Branch::propagateWind() {
 
+}
+
+float Branch::fillHP(float energy) {
+  float hpMissing = maxHp-hp;
+  float energySpent = 0;
+  if(energy > maxHp-hp) {
+    hp = maxHp;
+    energySpent = hpMissing;
+    energy -= energySpent;
+  }
+  // create energy division vector based on maxHp of children
+  vector<float> energyDivision;
+  float totalMaxHp = 0;
+  for(auto& c : children) {
+    if(!c.expired()) {
+      auto cPtr = c.lock(); // lock the weak_ptr to get a temporary shared_ptr
+      energyDivision.push_back(cPtr->maxHp);
+      totalMaxHp += cPtr->maxHp;
+    }
+  }
+  // normalise vector
+  for( auto& f : energyDivision) { f /= totalMaxHp; }
+  for(int i = 0; i < children.size(); i++) {
+    auto& c  = children[i];
+    if(!c.expired()) {
+      auto cPtr = c.lock(); // lock the weak_ptr to get a temporary shared_ptr
+      energySpent += cPtr->fillHP(energy*energyDivision[i]);
+    }
+  }
+
+  return energySpent;
+}
+
+void Branch::killBranch(vector<branch_ptr>& killedBranches) {
+  if(!isDead) killedBranches.push_back(shared_from_this());
+  isDead = true;
+  parent = NULL;
+  for(int i = 0; i < children.size(); i++) {
+    auto& c  = children[i];
+    if(!c.expired()) {
+      auto cPtr = c.lock(); // lock the weak_ptr to get a temporary shared_ptr
+      cPtr->killBranch(killedBranches);
+    }
+  }
 }

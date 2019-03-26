@@ -15,6 +15,7 @@ public:
   branch_ptr root;
   vector<branch_ptr> branches;
   vector<branch_ptr> endSegmentBranches;
+  vector<branch_ptr> looseBranches;       // dead branches that have fallen off
   vector<Leaf> leaves;
   branch_ptr currentBranch;
   vector<GrowthPoint> growthPoints;
@@ -240,6 +241,11 @@ public:
       }
     }
 
+    for (int i = 0; i < looseBranches.size(); i++) {
+
+      looseBranches[i]->show(ofColor(0));
+    }
+
     if (overlay) {
       string eg = "energy: " + to_string(energy);
       ofSetColor(255);
@@ -335,11 +341,34 @@ public:
       }
     }
 
-    energy += 0.5;
+    energy += 10.5;
 
     for (int i = 0; i < branches.size(); i++) {
       branches[i]->update();
     }
+    // remove dead branches from the tree
+    for(auto& b : branches) {
+      if(b->isDead) {
+        vector<branch_ptr> killedBranches;
+        b->killBranch(killedBranches);
+        looseBranches.insert(looseBranches.end(), killedBranches.begin(), killedBranches.end());
+      }
+    }
+    branches.erase(
+      std::remove_if(
+          branches.begin(),
+          branches.end(),
+          [](branch_ptr const & p) { return p->isDead; }
+      ),
+      branches.end()
+    );
+    for (int i = 0; i < looseBranches.size(); i++) {
+      looseBranches[i]->pos += glm::vec2(0, -3);
+    }
+
+    // fill up the root node and let it propagate through the tree
+    float energySpent = root->fillHP(energy);
+    energy -= energySpent;
 
     if(energy > 100) growBigger();
   }
