@@ -41,7 +41,7 @@ class ofApp : public ofBaseApp{
 
 		bool grow = true;
 
-		bool doTrees = false;
+		bool doTrees = true;
 		bool doRoses = true;
 		bool pause = false;
 

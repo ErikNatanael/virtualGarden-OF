@@ -92,10 +92,6 @@ public:
     }
   }
 
-  void makeBigger() {
-
-  }
-
   void growTrunk() {
     if (!startPointsSpawned) {
       startPointsSpawned = true;
@@ -223,7 +219,8 @@ public:
   void growBigger() {
     w += growthSpeed.x;
     h += growthSpeed.y;
-    spawnGrowthPoints(floor((w*h)*0.005));
+    int numPoints = ofClamp(floor((w*h)*0.003), 10, 50);
+    spawnGrowthPoints(numPoints);
   }
 
   ofColor branchColorByIndex(int i) {

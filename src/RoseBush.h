@@ -9,6 +9,7 @@ class RoseBush : public Tree {
 public:
 
   vector<Rose> roses;
+  int simplificationPoint = 300;
 
   RoseBush(glm::vec2 rootPos) : Tree(rootPos) {
     maxDist = 50;
@@ -159,8 +160,10 @@ public:
     energy += 1.5;
     if(energy > 100) growBigger();
 
-    if(branches.size() > 300) {
+    if(branches.size() > simplificationPoint) {
       simplifyTree(branches.size()*0.01);
+      //simplificationPoint *= 1.1;
+      simplificationPoint = floor((w*h)*0.03);
     }
   }
 };
