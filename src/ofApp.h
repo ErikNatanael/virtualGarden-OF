@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxOsc.h"
+
 #include "Tree.h"
 #include "Rose.h"
 #include "RoseBush.h"
@@ -26,6 +28,7 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+		void receiveOscMessages();
 
 		ofTrueTypeFont font;
 
@@ -42,10 +45,19 @@ class ofApp : public ofBaseApp{
 		bool grow = true;
 
 		bool doTrees = true;
-		bool doRoses = false;
+		bool doRoses = true;
 		bool pause = false;
 
 		glm::vec2 wind;
 
 		ofImage grabImg;
+
+		ofxOscReceiver oscReceiver;
+		vector<glm::vec2> motionTrackingValues;
+		int motionTrackingPoints = 20;
+		float temperature = 0;
+		float humidity = 0;
+		float light = 0;
+		float fluorescence = 0;
+
 };

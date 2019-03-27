@@ -10,6 +10,9 @@ void ofApp::setup(){
 
   font.load("SpaceMono-Regular.ttf", 20);
 
+  oscReceiver.setup(7771);
+  motionTrackingValues = vector<glm::vec2>(motionTrackingPoints);
+
   int numTrees = 3;
   for (int i = 0; i < numTrees; i++) {
     int x = (ofGetWidth()/(numTrees+1))*(i+1);
@@ -32,6 +35,8 @@ void ofApp::update(){
   dt = (float)(currentTime - lastTime);
   lastTime = currentTime;
   totalTime += dt;
+
+  receiveOscMessages();
 
   if(!pause) {
     sun.update();
@@ -202,4 +207,38 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){
 
+}
+
+void ofApp::receiveOscMessages() {
+  while(oscReceiver.hasWaitingMessages()) {
+    ofxOscMessage m;
+    oscReceiver.getNextMessage(m);
+    cout << m << endl;
+
+    // parse the message
+    if (m.getAddress() == "/motionTracking"  )
+		{
+      for(int i = 0; i < motionTrackingValues.size(); i++) {
+        // values are sent as x1 y1 x2 y2 etc
+        motionTrackingValues[i] = glm::vec2(m.getArgAsFloat(i*2), m.getArgAsFloat(i*2 + 1));
+      }
+		}
+
+    else if (m.getAddress() == "/temperature"  )
+		{
+			temperature = m.getArgAsFloat(0);
+		}
+    else if (m.getAddress() == "/humidity"  )
+		{
+			humidity = m.getArgAsFloat(0);
+		}
+    else if (m.getAddress() == "/light"  )
+		{
+			light = m.getArgAsFloat(0);
+		}
+    else if (m.getAddress() == "/fluorescence"  )
+		{
+			fluorescence = m.getArgAsFloat(0);
+		}
+  }
 }
