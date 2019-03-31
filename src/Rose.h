@@ -3,6 +3,8 @@
 
 #include "Branch.h"
 
+enum RoseShape {ROSE, TWO, OUTLINE};
+
 class Rose {
 public:
   glm::vec2 pos;
@@ -11,6 +13,8 @@ public:
   float numPetals;
   float maxPetals;
   branch_ptr parentBranch;
+
+  RoseShape type = ROSE;
 
   float lifeTime = 25.;
   bool dead = false;
@@ -50,7 +54,7 @@ public:
     float x, y;
     float t;      //angle theta
     float r;
-    int points = 200;
+    int points = 100;
 
 
     //noFill();
@@ -65,7 +69,17 @@ public:
 
       for(int i = 0; i<points; i++) {
         t = (TWO_PI/points)*i;
-        r = a * cos(b*t+(PI*0.5));
+        switch(type) {
+          case ROSE:
+            r = a * cos(b*t+(PI*0.5));
+            break;
+          case TWO:
+            r = a * ( cos(tan(b*t+(PI*0.5))) );
+            break;
+          case OUTLINE:
+            r = a * ( cos(sin(b*t+(PI*0.5))) );
+            break;
+        }
         x = r * cos(t);
         y = r * sin(t);
         ofVertex(x, y);
@@ -75,4 +89,5 @@ public:
 
     ofPopMatrix();
   }
+
 };

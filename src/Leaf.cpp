@@ -51,7 +51,7 @@ void Leaf::update(float dt, glm::vec2 parentPos) {
     pos = glm::vec2(pos.x, pos.y+3);
   }
 
-  if(falling && pos.y > ofGetHeight() + 20) dead = true;
+  if(falling && pos.y > ofGetHeight() + 20 || pos.y < -100) dead = true;
 
 }
 

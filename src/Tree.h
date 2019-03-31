@@ -19,7 +19,7 @@ public:
   vector<branch_ptr> branches;
   vector<branch_ptr> endSegmentBranches;
   vector<branch_ptr> looseBranches;       // dead branches that have fallen off
-  vector<std::weak_ptr<Leaf> > leaves;
+  vector<leaf_ptr > leaves;
   branch_ptr currentBranch;
   vector<GrowthPoint> growthPoints;
 
@@ -27,6 +27,8 @@ public:
   float branchEnergyCost = 15.;
   float energy = 0.;
   int maxLeafAmount = 100;
+  int energyReserveRequirement = 0;
+  float  growBiggerRequirement = 100;
 
   int startingGrowthPoints = 300;
   float w = ofRandom(50, 150);
@@ -123,54 +125,58 @@ public:
 
   void growBranches() {
 
-    for (int i = 0; i < growthPoints.size(); i++) {
-      GrowthPoint* l = &growthPoints[i];
-      branch_ptr closestBranch = NULL;
-      float smallestDistanceFound = 1000000.;
-      for (int j = 0; j < branches.size(); j++) {
-        branch_ptr b = branches[j];
-        float dist = glm::distance(l->pos, b->pos);
-        if (dist < minDist) { // it doesn't count
-          l->reached = true;
-          closestBranch = NULL;
-          smallestDistanceFound = dist;
-          break; // we can break because this growth point has been reached
-        } else if (dist > maxDist) {
-        } else if (closestBranch == NULL ||
-          dist < smallestDistanceFound) {
-          closestBranch = b;
-          smallestDistanceFound = dist;
-        }
-      }
-      if (closestBranch != NULL) {
-        glm::vec2 newDir = l->pos - closestBranch->pos;
-        newDir += glm::vec2(ofRandomuf()*4, ofRandomuf()*4); // add a small random value to avoid getting stuck between two points
-        newDir = glm::normalize(newDir) * 2.;
-        closestBranch->direction += newDir;
-        closestBranch->count++;
-      }
-    }
-
-    checkIfStuck();
-
-
-
-    for (int i = branches.size()-1; i>=0; i--) {
-      branch_ptr b = branches[i];
-      if (b->count > 0 && b->canGrowBranch()) {
-        b->direction /= b->count + 1;
-        if (energy > branchEnergyCost) {
-          branch_ptr newBranch = b->next();
-          // reject branches that are too close
-          if(glm::distance(b->pos, newBranch->pos) > 2.) {
-            branches.push_back(newBranch);
-            endSegmentBranches.push_back(newBranch);
-            energy -= branchEnergyCost;
+    if(energy > energyReserveRequirement) {
+      for (int i = 0; i < growthPoints.size(); i++) {
+        GrowthPoint* l = &growthPoints[i];
+        branch_ptr closestBranch = NULL;
+        float smallestDistanceFound = 1000000.;
+        for (int j = 0; j < branches.size(); j++) {
+          branch_ptr b = branches[j];
+          float dist = glm::distance(l->pos, b->pos);
+          if (dist < minDist) { // it doesn't count
+            l->reached = true;
+            closestBranch = NULL;
+            smallestDistanceFound = dist;
+            break; // we can break because this growth point has been reached
+          } else if (dist > maxDist) {
+          } else if (closestBranch == NULL ||
+            dist < smallestDistanceFound) {
+            closestBranch = b;
+            smallestDistanceFound = dist;
           }
         }
+        if (closestBranch != NULL) {
+          glm::vec2 newDir = l->pos - closestBranch->pos;
+          newDir += glm::vec2(ofRandomuf()*4, ofRandomuf()*4); // add a small random value to avoid getting stuck between two points
+          newDir = glm::normalize(newDir) * 2.;
+          closestBranch->direction += newDir;
+          closestBranch->count++;
+        }
       }
-      b->resetBranch();
+
+      checkIfStuck();
+
+
+
+      for (int i = branches.size()-1; i>=0; i--) {
+        branch_ptr b = branches[i];
+        if (b->count > 0 && b->canGrowBranch()) {
+          b->direction /= b->count + 1;
+          if (energy > energyReserveRequirement && energy > branchEnergyCost) {
+            branch_ptr newBranch = b->next();
+            // reject branches that are too close
+            if(glm::distance(b->pos, newBranch->pos) > 2.) {
+              branches.push_back(newBranch);
+              endSegmentBranches.push_back(newBranch);
+              energy -= branchEnergyCost;
+            }
+          }
+        }
+        b->resetBranch();
+      }
     }
+
+
     // remove branches that are no longer end segments
     for (int i = endSegmentBranches.size()-1; i>=0; i--) {
       if (!endSegmentBranches[i]->isEndSegment) endSegmentBranches.erase(endSegmentBranches.begin() + i);
@@ -213,8 +219,8 @@ public:
         }
         if (b->thickness < 10.) {
 
-          std::weak_ptr<Leaf> newLeafWeak = b->addLeaf();
-          leaves.push_back(newLeafWeak);
+          leaf_ptr newLeaf = b->addLeaf();
+          leaves.push_back(newLeaf);
           energy -= leafEnergyCost;
         }
       }
@@ -330,16 +336,14 @@ public:
 
   void update(float dt, Sun sun) {
     maxLeafAmount = endSegmentBranches.size();
+    energyReserveRequirement = branches.size()*0.5;
+    growBiggerRequirement = max(energyReserveRequirement*1.5, 100.0);
 
     if (doLeaves) {
       for (int i = leaves.size()-1; i >= 0; i--) {
-        if(!leaves[i].expired()) {
-          auto lPtr = leaves[i].lock(); // lock the weak_ptr to get a temporary shared_ptr
-          energy += lPtr->getEnergy(sun);
-          if (lPtr->dead) leaves.erase(leaves.begin() + i);
-        } else {
-          leaves.erase(leaves.begin() + i);
-        }
+        auto lPtr = leaves[i];
+        energy += lPtr->getEnergy(sun);
+        if (lPtr->dead) leaves.erase(leaves.begin() + i);
       }
     }
 
@@ -382,7 +386,7 @@ public:
     float energySpent = root->fillHP(energy);
     energy -= energySpent;
 
-    if(energy > 100) growBigger();
+    if(energy > growBiggerRequirement) growBigger();
   }
 };
 

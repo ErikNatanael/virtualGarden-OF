@@ -155,7 +155,7 @@ public:
     }
 
 
-    energy += 1.5;
+    energy += 3.5;
 
     // remove dead branches from the tree
     for(auto& b : branches) {

@@ -193,6 +193,11 @@ void Branch::killBranch(vector<branch_ptr>& killedBranches) {
       cPtr->killBranch(killedBranches);
     }
   }
+
+  for(auto& l : leaves) {
+    l->lifeTime = 0;
+    l->falling = true;
+  }
 }
 
 leaf_ptr Branch::addLeaf() {
