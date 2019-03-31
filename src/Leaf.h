@@ -1,15 +1,18 @@
-#pragma once
+#ifndef LEAF_H_
+#define LEAF_H_
 
 #include "ofMain.h"
-#include "Branch.h"
 #include "Sun.h"
+#include <memory>
 
 class Leaf {
 public:
   float angle;
-  branch_ptr parentBranch;
   bool shiftSide = false;
   float lifeTime;
+  float hp;
+  float maxHp;
+  float damagePerTick = 0.05;
   bool falling = false;
   glm::vec2 pos;
   float randomSeed;
@@ -18,9 +21,14 @@ public:
   bool dead = false;
   ofColor fillCol;
 
-  Leaf(branch_ptr parent, float angle_);
+  Leaf(float angle_);
   void drawLeafShape();
-  void update(float dt);
-  void show(float totalTime);
+  void update(float dt, glm::vec2 parentPos);
+  void show(float totalTime, glm::vec2 direction);
   float getEnergy(Sun sun);
+  float fillHP(float energy);
 };
+
+typedef std::shared_ptr<Leaf> leaf_ptr; // alias to reduce typing and typos
+
+#endif /* end of include guard: LEAF_H_ */

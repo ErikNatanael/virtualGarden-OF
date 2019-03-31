@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GROWTHPOINT_H_
+#define GROWTHPOINT_H_
 
 #include "ofMain.h"
 
@@ -10,3 +11,5 @@ public:
   GrowthPoint(glm::vec2 p_);
   void show();
 };
+
+#endif /* end of include guard: GROWTHPOINT_H_ */

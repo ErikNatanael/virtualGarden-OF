@@ -1,7 +1,10 @@
-#pragma once
+#ifndef TREE_H_
+#define TREE_H_
+
+
 #include "ofMain.h"
-#include "Branch.h"
 #include "GrowthPoint.h"
+#include "Branch.h"
 #include "Leaf.h"
 #include "globals.h"
 #include "Sun.h"
@@ -16,7 +19,7 @@ public:
   vector<branch_ptr> branches;
   vector<branch_ptr> endSegmentBranches;
   vector<branch_ptr> looseBranches;       // dead branches that have fallen off
-  vector<Leaf> leaves;
+  vector<std::weak_ptr<Leaf> > leaves;
   branch_ptr currentBranch;
   vector<GrowthPoint> growthPoints;
 
@@ -209,8 +212,9 @@ public:
           skipsFromEnd--;
         }
         if (b->thickness < 10.) {
-          Leaf newLeaf = Leaf(b, 0.5);
-          leaves.push_back(newLeaf);
+
+          std::weak_ptr<Leaf> newLeafWeak = b->addLeaf();
+          leaves.push_back(newLeafWeak);
           energy -= leafEnergyCost;
         }
       }
@@ -232,18 +236,12 @@ public:
 
     for (int i = 0; i < branches.size(); i++) {
 
-      branches[i]->show(branchColorByIndex(i));
-    }
-
-    if (doLeaves) {
-      for (int i = 0; i < leaves.size(); i++) {
-        leaves[i].show(totalTime);
-      }
+      branches[i]->show(branchColorByIndex(i), totalTime);
     }
 
     for (int i = 0; i < looseBranches.size(); i++) {
 
-      looseBranches[i]->show(ofColor(0));
+      looseBranches[i]->show(ofColor(0), totalTime);
     }
 
     if (overlay) {
@@ -335,16 +333,20 @@ public:
 
     if (doLeaves) {
       for (int i = leaves.size()-1; i >= 0; i--) {
-        energy += leaves[i].getEnergy(sun);
-        leaves[i].update(dt);
-        if (leaves[i].dead) leaves.erase(leaves.begin() + i);
+        if(!leaves[i].expired()) {
+          auto lPtr = leaves[i].lock(); // lock the weak_ptr to get a temporary shared_ptr
+          energy += lPtr->getEnergy(sun);
+          if (lPtr->dead) leaves.erase(leaves.begin() + i);
+        } else {
+          leaves.erase(leaves.begin() + i);
+        }
       }
     }
 
     energy += 10.5;
 
     for (int i = 0; i < branches.size(); i++) {
-      branches[i]->update();
+      branches[i]->update(dt);
     }
     // remove dead branches from the tree
     for(auto& b : branches) {
@@ -362,9 +364,19 @@ public:
       ),
       branches.end()
     );
-    for (int i = 0; i < looseBranches.size(); i++) {
-      looseBranches[i]->pos += glm::vec2(0, -3);
+    // update the loose branches (dead branches)
+    for (int i = looseBranches.size()-1; i >= 0; i--) {
+      looseBranches[i]->update(dt);
+      looseBranches[i]->deadStartPos += glm::vec2(0, -1);
     }
+    looseBranches.erase(
+      std::remove_if(
+          looseBranches.begin(),
+          looseBranches.end(),
+          [](branch_ptr const & p) { return p->deadStartPos.y < -100; }
+      ),
+      looseBranches.end()
+    );
 
     // fill up the root node and let it propagate through the tree
     float energySpent = root->fillHP(energy);
@@ -373,3 +385,5 @@ public:
     if(energy > 100) growBigger();
   }
 };
+
+#endif /* end of include guard: TREE_H_ */

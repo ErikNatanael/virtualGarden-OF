@@ -1,4 +1,5 @@
 #include "Branch.h"
+#include "Leaf.h"
 
 Branch::Branch() {}
 
@@ -29,8 +30,8 @@ void Branch::resetBranch() {
   count = 0;
 }
 
-void Branch::show(ofColor col) {
-  if(parent != NULL) {
+void Branch::show(ofColor col, float totalTime) {
+  if(parent != NULL || isDead) {
     ofSetColor(col);
     //strokeWeight(thickness);
 
@@ -38,15 +39,24 @@ void Branch::show(ofColor col) {
     ofSetColor((hp/maxHp) * 255, 0, 0);
     if(isDead) ofSetColor(255);
 
+    glm::vec2 drawTo;
+    if(isDead) drawTo = deadStartPos;
+    else       drawTo = parent->pos;
+
     if(thickness < 10) {
       ofSetLineWidth(thickness);
-      ofDrawLine(pos.x, pos.y, parent->pos.x, parent->pos.y);
+      ofDrawLine(pos.x, pos.y, drawTo.x, drawTo.y);
     } else {
-      float w = pos.x - parent->pos.x;
-      float h = pos.y - parent->pos.y;
+      float w = pos.x - drawTo.x;
+      float h = pos.y - drawTo.y;
       ofDrawEllipse(pos.x, pos.y, abs(w) + thickness, abs(h)*2 + thickness*.5);
       // weird digital artefact trees
       ofDrawRectangle(pos.x, pos.y, abs(w)*thickness, h);
+    }
+
+    // draw leaves
+    for (int i = 0; i < leaves.size(); i++) {
+      leaves[i]->show(totalTime, direction);
     }
   }
 }
@@ -57,9 +67,11 @@ void Branch::propagateGrowth(float growthAmount) {
   if(parent != NULL) parent->propagateGrowth(thicknessGrowth);
 }
 
-void Branch::update() {
+void Branch::update(float dt) {
   if(parent != NULL)
     pos = parent->pos + originalRelativePos;
+  else if(isDead)
+    pos = deadStartPos + originalRelativePos;
   if(thickness > 20.) canSpawn = false;
 
   if(hp <= 0) {
@@ -67,6 +79,11 @@ void Branch::update() {
     canSpawn = false;
   }
   hp -= damagePerTick;
+
+  for (int i = leaves.size()-1; i >= 0; i--) {
+    leaves[i]->update(dt, pos);
+    if (leaves[i]->dead) leaves.erase(leaves.begin() + i);
+  }
 }
 
 void Branch::deleteBranch() {
@@ -129,6 +146,13 @@ float Branch::fillHP(float energy) {
     energySpent = hpMissing;
     energy -= energySpent;
   }
+  // fill up leaves
+  for(auto& c : leaves) {
+    float e = c->fillHP(energy);
+    energySpent += e;
+    energy -= e;
+  }
+
   // create energy division vector based on maxHp of children
   vector<float> energyDivision;
   float totalMaxHp = 0;
@@ -153,9 +177,15 @@ float Branch::fillHP(float energy) {
 }
 
 void Branch::killBranch(vector<branch_ptr>& killedBranches) {
-  if(!isDead) killedBranches.push_back(shared_from_this());
+  // this is called if a branch dies and need to be removed from the tree
+  if(!isDead) {
+    killedBranches.push_back(shared_from_this());
+    if(parent!=NULL) deadStartPos = parent->pos;
+    else deadStartPos = glm::vec2(ofGetWidth()*.5, ofGetHeight());
+  }
   isDead = true;
   parent = NULL;
+
   for(int i = 0; i < children.size(); i++) {
     auto& c  = children[i];
     if(!c.expired()) {
@@ -163,4 +193,10 @@ void Branch::killBranch(vector<branch_ptr>& killedBranches) {
       cPtr->killBranch(killedBranches);
     }
   }
+}
+
+leaf_ptr Branch::addLeaf() {
+  leaf_ptr newLeaf = make_shared<Leaf>(0.5);
+  leaves.push_back(newLeaf);
+  return newLeaf;
 }

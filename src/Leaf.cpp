@@ -1,8 +1,7 @@
 #include "Leaf.h"
 #include "Branch.h"
 
-Leaf::Leaf(branch_ptr parent, float angle_) {
-  parentBranch = parent;
+Leaf::Leaf(float angle_) {
   angle = angle_;
   if(ofRandomuf()>0.5) {
     shiftSide = true;
@@ -14,6 +13,9 @@ Leaf::Leaf(branch_ptr parent, float angle_) {
 
   lifeTime = 30.;
   randomSeed = ofRandom(100);
+
+  hp = 2;
+  maxHp = 2;
 }
 
 void Leaf::drawLeafShape() {
@@ -31,19 +33,20 @@ void Leaf::drawLeafShape() {
 
 }
 
-void Leaf::update(float dt) {
+void Leaf::update(float dt, glm::vec2 parentPos) {
   lifeTime -= dt;
+  hp -= damagePerTick;
   if(size < maxSize) {
     size += 0.1;
   }
-  if(lifeTime < 2.) {
+  if(lifeTime < 2. || falling) {
     fillCol = ofColor(255,140,0);
   }
   if(lifeTime < 0.) {
     falling = true;
   }
   if(!falling) {
-    pos = glm::vec2(parentBranch->pos.x, parentBranch->pos.y);
+    pos = glm::vec2(parentPos.x, parentPos.y);
   } else {
     pos = glm::vec2(pos.x, pos.y+3);
   }
@@ -52,12 +55,12 @@ void Leaf::update(float dt) {
 
 }
 
-void Leaf::show(float totalTime) {
+void Leaf::show(float totalTime, glm::vec2 direction) {
 
-  float rotation = atan2(parentBranch->direction.y, parentBranch->direction.x);
+  float rotation = atan2(direction.y, direction.x);
   if(shiftSide) rotation += PI;
-  float wind = ofNoise(parentBranch->pos.x*0.01, parentBranch->pos.y*0.01, totalTime);
-  wind += ofNoise(parentBranch->pos.x*0.01, parentBranch->pos.y*0.01, totalTime*2)*0.3;
+  float wind = ofNoise(pos.x*0.01, pos.y*0.01, totalTime);
+  wind += ofNoise(pos.x*0.01, pos.y*0.01, totalTime*2)*0.3;
   wind *= TWO_PI;
 
   if(!falling) {
@@ -79,4 +82,15 @@ float Leaf::getEnergy(Sun sun) {
 
   return energy;
 
+}
+
+float Leaf::fillHP(float energy) {
+  float hpMissing = maxHp-hp;
+  float energySpent = 0;
+  if(energy > maxHp-hp) {
+    hp = maxHp;
+    energySpent = hpMissing;
+    energy -= energySpent;
+  }
+  return energySpent;
 }
