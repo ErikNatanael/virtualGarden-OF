@@ -8,7 +8,7 @@ Leaf::Leaf(float angle_) {
     angle = angle*-1;
   }
   size = 1;
-  fillCol = ofColor(100, 200, 100);
+  fillCol = ofColor(100, 200, 100, alpha);
   maxSize = ofRandom(7, 15);
 
   lifeTime = 30.;
@@ -40,7 +40,7 @@ void Leaf::update(float dt, glm::vec2 parentPos) {
     size += 0.1;
   }
   if(lifeTime < 2. || falling) {
-    fillCol = ofColor(255,140,0);
+    fillCol = ofColor(255,140,0, alpha);
   }
   if(lifeTime < 0.) {
     falling = true;

@@ -135,9 +135,9 @@ void ofApp::keyPressed(int key){
     case 'x':
       static float thresh = 1;
       for(auto& t : trees) {
-        t.simplifyTree(10);
+        t.simplifyTree(thresh);
       }
-      thresh += 1;
+      thresh += 0.5;
       break;
     case OF_KEY_UP:
       for(auto& t : trees) {

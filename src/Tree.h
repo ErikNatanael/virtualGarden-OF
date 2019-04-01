@@ -245,7 +245,8 @@ public:
 
     for (int i = 0; i < branches.size(); i++) {
 
-      branches[i]->show(branchColorByIndex(i), totalTime);
+      // branches[i]->show(branchColorByIndex(i), totalTime);
+      branches[i]->show(branches[i]->calculateBranchColor(), totalTime);
     }
 
     for (int i = 0; i < looseBranches.size(); i++) {

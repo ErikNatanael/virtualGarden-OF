@@ -19,6 +19,7 @@ public:
   float size;
   float maxSize = 15;
   bool dead = false;
+  float alpha = 150;
   ofColor fillCol;
 
   Leaf(float angle_);

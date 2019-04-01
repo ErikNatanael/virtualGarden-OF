@@ -46,6 +46,7 @@ public:
   float fillHP(float energy);
   void killBranch(vector<std::shared_ptr<Branch> >& killedBranches);
   leaf_ptr addLeaf();
+  ofColor calculateBranchColor();
 
 };
 

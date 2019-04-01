@@ -36,7 +36,7 @@ void Branch::show(ofColor col, float totalTime) {
     //strokeWeight(thickness);
 
     // set color by hp
-    ofSetColor((hp/maxHp) * 255, 0, 0);
+    // ofSetColor((hp/maxHp) * 255, 0, 0);
     if(isDead) ofSetColor(255);
 
     glm::vec2 drawTo;
@@ -215,4 +215,18 @@ leaf_ptr Branch::addLeaf() {
   leaf_ptr newLeaf = make_shared<Leaf>(0.5);
   leaves.push_back(newLeaf);
   return newLeaf;
+}
+
+ofColor Branch::calculateBranchColor() {
+  float r,g,b,a;
+  float branchSpecific = (thicknessGrowth-0.01)/0.02; // gives the branch specific number 0-1
+  r = thickness*10;
+  g = 100 - thickness*5;
+  b = (1 - (hp/maxHp)) * 255;
+  a = 100 + thickness*15;
+  r = ofClamp(r, 0, 255);
+  g = ofClamp(g, 0, 255);
+  b = ofClamp(b, 0, 255);
+  a = ofClamp(a, 0, 255);
+  return ofColor(r, g, b, a);
 }
