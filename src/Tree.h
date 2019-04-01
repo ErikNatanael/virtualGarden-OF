@@ -389,7 +389,7 @@ public:
     float energySpent = root->fillHP(energy);
     energy -= energySpent;
 
-    if(energy > growBiggerRequirement && trunkFinished) growBigger();
+    if(energy > growBiggerRequirement && trunkFinished && growthPoints.size() == 0) growBigger();
   }
 };
 
