@@ -12,8 +12,8 @@ public:
   int simplificationPoint = 300;
 
   RoseBush(glm::vec2 rootPos) : Tree(rootPos) {
-    maxDist = 50;
-    minDist = 2; // don't make smaller than 2 (branch growing can get stuck)
+    maxDist = 30;
+    minDist = 5; // don't make smaller than 2 (branch growing can get stuck)
 
     startingGrowthPoints = 100;
     // h = ofRandom(75, 200);
@@ -24,6 +24,8 @@ public:
     rounding = 0.7;
     growthSpeed = glm::vec2(ofRandom(2, 5), ofRandom(1, 3));
     branchEnergyCost = 10.;
+    trunkFinished = true;
+    thicknessMul = 0.;
   }
 
   void grow() {
@@ -36,7 +38,7 @@ public:
     growRoses();
   }
 
-  void growBranches() {
+  /*void growBranches() {
 
     for (int i = 0; i < growthPoints.size(); i++) {
       GrowthPoint* l = &growthPoints[i];
@@ -106,7 +108,7 @@ public:
         growthPoints.erase(growthPoints.begin() + i);
       }
     }
-  }
+  }*/
 
   void growRoses() {
 
@@ -150,7 +152,9 @@ public:
       if(roses[i].dead) roses.erase(roses.begin() + i);
     }
 
-    for (int i = 0; i < branches.size(); i++) {
+    Tree::update(dt, sun);
+
+    /*for (int i = 0; i < branches.size(); i++) {
       branches[i]->update(dt);
     }
 
@@ -188,6 +192,6 @@ public:
       simplifyTree(branches.size()*0.01);
       //simplificationPoint *= 1.1;
       simplificationPoint = floor((w*h)*0.03);
-    }
+    }*/
   }
 };

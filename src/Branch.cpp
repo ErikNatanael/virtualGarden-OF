@@ -220,11 +220,11 @@ leaf_ptr Branch::addLeaf() {
 ofColor Branch::calculateBranchColor() {
   float r,g,b,a;
   float branchSpecific = (thicknessGrowth-0.01)/0.02; // gives the branch specific number 0-1
-  r = thickness*10;
+  r = thickness*7;
   g = 100 - thickness*5 - branchSpecific*50;
   b = (1 - (hp/maxHp)) * 255;
   a = 100 + thickness*15;
-  r = ofClamp(r, 0, 255);
+  r = ofClamp(r, 10, 200);
   g = ofClamp(g, 0, 255);
   b = ofClamp(b, 0, 255);
   a = ofClamp(a, 0, 255);

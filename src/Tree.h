@@ -29,12 +29,14 @@ public:
   int maxLeafAmount = 100;
   int energyReserveRequirement = 0;
   float  growBiggerRequirement = 100;
+  float passiveEnergyGain = 15.;
 
   int startingGrowthPoints = 300;
   float w = ofRandom(50, 150);
   float h = ofRandom(100, 200);
   float hOffset = ofGetHeight()*0.4;
   float rounding = 0.9;
+  float thicknessMul = 1.;
 
   glm::vec2 growthSpeed; // how much the tree will grow in the x and y direction per growth tick
 
@@ -167,6 +169,7 @@ public:
           b->direction /= b->count + 1;
           if (energy > energyReserveRequirement && energy > branchEnergyCost) {
             branch_ptr newBranch = b->next();
+            newBranch->thicknessGrowth *= thicknessMul;
             // reject branches that are too close
             if(glm::distance(b->pos, newBranch->pos) > 2.) {
               branches.push_back(newBranch);
@@ -351,7 +354,7 @@ public:
       }
     }
 
-    energy += 10.5;
+    energy += passiveEnergyGain;
 
     for (int i = 0; i < branches.size(); i++) {
       branches[i]->update(dt);
@@ -390,7 +393,7 @@ public:
     float energySpent = root->fillHP(energy);
     energy -= energySpent;
 
-    if(energy > growBiggerRequirement && trunkFinished && growthPoints.size() == 0) growBigger();
+    if(energy > growBiggerRequirement && trunkFinished && growthPoints.size() < 5) growBigger();
   }
 };
 

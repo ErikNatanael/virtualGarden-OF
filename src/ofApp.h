@@ -45,7 +45,7 @@ class ofApp : public ofBaseApp{
 		bool grow = true;
 
 		bool doTrees = true;
-		bool doRoses = false;
+		bool doRoses = true;
 		bool pause = false;
 
 		glm::vec2 wind;
