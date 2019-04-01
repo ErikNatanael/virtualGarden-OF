@@ -37,6 +37,7 @@ public:
   void resetBranch();
   void show(ofColor col, float totalTime);
   void propagateGrowth(float growthAmount);
+  void propagateDeath();
   void update(float dt);
   void propagateWind();
   void simplifyChildren(float distanceThreshold);

@@ -60,6 +60,7 @@ public:
     rounding = ofRandom(0.7)+.3;
     hOffset = ofRandom(100)+50;
     growthSpeed = glm::vec2(ofRandom(5, 15), ofRandom(5, 15));
+    energy = branchEnergyCost * 200;
 
     startPointsSpawned = false;
   }
@@ -125,24 +126,26 @@ public:
 
   void growBranches() {
 
-    if(energy > energyReserveRequirement) {
+    if(energy > energyReserveRequirement + branchEnergyCost*5) {
       for (int i = 0; i < growthPoints.size(); i++) {
         GrowthPoint* l = &growthPoints[i];
         branch_ptr closestBranch = NULL;
         float smallestDistanceFound = 1000000.;
         for (int j = 0; j < branches.size(); j++) {
           branch_ptr b = branches[j];
-          float dist = glm::distance(l->pos, b->pos);
-          if (dist < minDist) { // it doesn't count
-            l->reached = true;
-            closestBranch = NULL;
-            smallestDistanceFound = dist;
-            break; // we can break because this growth point has been reached
-          } else if (dist > maxDist) {
-          } else if (closestBranch == NULL ||
-            dist < smallestDistanceFound) {
-            closestBranch = b;
-            smallestDistanceFound = dist;
+          if(b->canGrowBranch()) {
+            float dist = glm::distance(l->pos, b->pos);
+            if (dist < minDist) { // it doesn't count
+              l->reached = true;
+              closestBranch = NULL;
+              smallestDistanceFound = dist;
+              break; // we can break because this growth point has been reached
+            } else if (dist > maxDist) {
+            } else if (closestBranch == NULL ||
+              dist < smallestDistanceFound) {
+              closestBranch = b;
+              smallestDistanceFound = dist;
+            }
           }
         }
         if (closestBranch != NULL) {
@@ -386,7 +389,7 @@ public:
     float energySpent = root->fillHP(energy);
     energy -= energySpent;
 
-    if(energy > growBiggerRequirement) growBigger();
+    if(energy > growBiggerRequirement && trunkFinished) growBigger();
   }
 };
 

@@ -63,8 +63,14 @@ void Branch::show(ofColor col, float totalTime) {
 
 void Branch::propagateGrowth(float growthAmount) {
   thickness += growthAmount;
-  maxHp += damagePerTick;
+  maxHp += damagePerTick * 8;
   if(parent != NULL) parent->propagateGrowth(thicknessGrowth);
+}
+
+void Branch::propagateDeath() {
+  // called when children die (mostly to fix energy distribution through the tree)
+  maxHp -= damagePerTick * 8;
+  if(parent != NULL) parent->propagateDeath();
 }
 
 void Branch::update(float dt) {
@@ -165,6 +171,7 @@ float Branch::fillHP(float energy) {
   }
   // normalise vector
   for( auto& f : energyDivision) { f /= totalMaxHp; }
+  // fill branches based on their maxHp
   for(int i = 0; i < children.size(); i++) {
     auto& c  = children[i];
     if(!c.expired()) {
@@ -180,11 +187,12 @@ void Branch::killBranch(vector<branch_ptr>& killedBranches) {
   // this is called if a branch dies and need to be removed from the tree
   if(!isDead) {
     killedBranches.push_back(shared_from_this());
-    if(parent!=NULL) deadStartPos = parent->pos;
+    if(parent!=NULL) {
+      deadStartPos = parent->pos;
+      parent->propagateDeath();
+    }
     else deadStartPos = glm::vec2(ofGetWidth()*.5, ofGetHeight());
   }
-  isDead = true;
-  parent = NULL;
 
   for(int i = 0; i < children.size(); i++) {
     auto& c  = children[i];
@@ -193,6 +201,9 @@ void Branch::killBranch(vector<branch_ptr>& killedBranches) {
       cPtr->killBranch(killedBranches);
     }
   }
+
+  isDead = true;
+  parent = NULL;
 
   for(auto& l : leaves) {
     l->lifeTime = 0;
