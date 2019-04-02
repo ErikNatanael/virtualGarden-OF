@@ -26,10 +26,11 @@ public:
   float leafEnergyCost = 10;
   float branchEnergyCost = 15.;
   float energy = 0.;
+  float maxEnergy;
   int maxLeafAmount = 100;
   int energyReserveRequirement = 0;
   float  growBiggerRequirement = 100;
-  float passiveEnergyGain = 15.;
+  float passiveEnergyGain = 10.5;
 
   int startingGrowthPoints = 300;
   float w = ofRandom(50, 150);
@@ -63,6 +64,7 @@ public:
     hOffset = ofRandom(100)+50;
     growthSpeed = glm::vec2(ofRandom(5, 15), ofRandom(5, 15));
     energy = branchEnergyCost * 200;
+    maxEnergy = energy * 1.5;
 
     startPointsSpawned = false;
   }
@@ -346,6 +348,10 @@ public:
     energyReserveRequirement = branches.size()*0.5;
     growBiggerRequirement = max(energyReserveRequirement*1.5, 100.0);
 
+    if(trunkFinished) maxEnergy = max(float(branches.size()*2), 1000.0f);
+    if(energy > maxEnergy) energy = maxEnergy;
+
+
     if (doLeaves) {
       for (int i = leaves.size()-1; i >= 0; i--) {
         auto lPtr = leaves[i];
@@ -393,7 +399,13 @@ public:
     float energySpent = root->fillHP(energy);
     energy -= energySpent;
 
-    if(energy > growBiggerRequirement && trunkFinished && growthPoints.size() < 5) growBigger();
+    //if(energy > growBiggerRequirement && trunkFinished && growthPoints.size() < 5) growBigger();
+
+    // update GrowthPoints
+    for(int i = growthPoints.size()-1; i >= 0; i--) {
+      growthPoints[i].update(dt);
+      if(growthPoints[i].expired) growthPoints.erase(growthPoints.begin() + i);
+    }
   }
 };
 

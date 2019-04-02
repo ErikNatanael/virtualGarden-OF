@@ -13,6 +13,10 @@ void ofApp::setup(){
   oscReceiver.setup(7771);
   motionTrackingValues = vector<glm::vec2>(motionTrackingPoints);
 
+  int baud = 115200;
+  serial.setup(0, baud); //open the first device and talk to it at 57600 baud
+  serial.flush();
+
   int numTrees = 3;
   for (int i = 0; i < numTrees; i++) {
     int x = (ofGetWidth()/(numTrees+1))*(i+1);
@@ -37,9 +41,10 @@ void ofApp::update(){
   totalTime += dt;
 
   receiveOscMessages();
+  readSerialData();
 
   if(!pause) {
-    sun.update();
+    sun.update(light);
   }
 
   if (doTrees) {
@@ -47,6 +52,17 @@ void ofApp::update(){
       Tree* tree = &trees[i];
       if (grow && !pause) trees[i].grow();
       if(!pause)trees[i].update(dt, sun);
+    }
+  }
+
+
+  for(int i = 0; i < motionTrackingValues.size(); i++) {
+    if(ofRandomuf() > 0.99) {
+      auto& v = motionTrackingValues[i];
+      GrowthPoint temp = GrowthPoint(glm::vec2(v.x + ofRandomf()*20, v.y + ofRandomf()*20));
+      for(auto& t : trees) {
+        t.growthPoints.push_back(temp);
+      }
     }
   }
 
@@ -74,6 +90,12 @@ void ofApp::draw(){
     for (int i = 0; i < roseBushes.size(); i++) {
       roseBushes[i].show(font, totalTime);
     }
+  }
+
+  // draw the tracked values
+  ofSetColor(0, 150);
+  for(auto& v : motionTrackingValues) {
+    ofDrawEllipse(v.x, v.y, 20, 20);
   }
 
   if (overlay) {
@@ -108,6 +130,18 @@ void ofApp::draw(){
     for (auto& t : trees) nlb += t.looseBranches.size();
     string numLooseBranches = "number of loose branches: " + to_string(nlb);
     font.drawString(numLooseBranches, 10, 180);
+
+    string str;
+    str = "humidity:     " + to_string(humidity);
+    font.drawString(str, 10, 240);
+    str = "light:        " + to_string(light);
+    font.drawString(str, 10, 270);
+    str = "temperature1: " + to_string(temperature1);
+    font.drawString(str, 10, 300);
+    str = "temperature2: " + to_string(temperature2);
+    font.drawString(str, 10, 330);
+    str = "fluorescence: " + to_string(fluorescence);
+    font.drawString(str, 10, 360);
   }
 
 }
@@ -216,17 +250,21 @@ void ofApp::receiveOscMessages() {
     cout << "address: " << m.getAddress() << " message: " << m << endl;
 
     // parse the message
-    if (m.getAddress() == "/motionTracking"  )
+    if (m.getAddress() == "/coords"  )
 		{
+      // convert from 320 x 240 coordinates to the canvas
+      float xratio = float(ofGetWidth())/320.0;
+      float yratio = float(ofGetHeight())/240.0;
+
       for(int i = 0; i < motionTrackingValues.size(); i++) {
         // values are sent as x1 y1 x2 y2 etc
-        motionTrackingValues[i] = glm::vec2(m.getArgAsFloat(i*2), m.getArgAsFloat(i*2 + 1));
+        motionTrackingValues[i] = glm::vec2(m.getArgAsFloat(i*2) * xratio, m.getArgAsFloat(i*2 + 1) * yratio);
       }
 		}
 
     else if (m.getAddress() == "/temperature"  )
 		{
-			temperature = m.getArgAsFloat(0);
+			temperature1 = m.getArgAsFloat(0);
 		}
     else if (m.getAddress() == "/humidity"  )
 		{
@@ -241,4 +279,43 @@ void ofApp::receiveOscMessages() {
 			fluorescence = m.getArgAsFloat(0);
 		}
   }
+}
+
+void ofApp::readSerialData() {
+  while(serial.available()) {
+    char byte = serial.readByte();
+    //cout << "byte: " << byte << endl;
+    if ( byte == OF_SERIAL_NO_DATA )
+      printf("no data was read");
+    else if ( byte == OF_SERIAL_ERROR )
+      printf("an error occurred");
+    else if (byte == 13) parseSerialData();
+    else {
+      // add the byte to the current string
+      currentMessage << byte;
+    }
+  }
+}
+
+void ofApp::parseSerialData() {
+  //cout << currentMessage.str() << endl;
+  vector<float> values(5, -1);
+  string v;
+  int i = 0;
+  while(currentMessage >> v && i < 5) {
+    values[i] = stoi(v);
+    i++;
+  }
+  if(i == 5) {
+    // all values were registered
+    humidity = values[3];
+    light = values[1];
+    temperature1 = values[0];
+    temperature2 = values[2];
+    fluorescence = values[4];
+  }
+
+  currentMessage.str("");
+  currentMessage.clear();
+
 }

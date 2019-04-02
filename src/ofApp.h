@@ -29,6 +29,8 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		void receiveOscMessages();
+		void readSerialData();
+		void parseSerialData();
 
 		ofTrueTypeFont font;
 
@@ -45,7 +47,7 @@ class ofApp : public ofBaseApp{
 		bool grow = true;
 
 		bool doTrees = true;
-		bool doRoses = true;
+		bool doRoses = false;
 		bool pause = false;
 
 		glm::vec2 wind;
@@ -53,9 +55,12 @@ class ofApp : public ofBaseApp{
 		ofImage grabImg;
 
 		ofxOscReceiver oscReceiver;
+		ofSerial serial;
+		stringstream currentMessage;
 		vector<glm::vec2> motionTrackingValues;
 		int motionTrackingPoints = 20;
-		float temperature = 0;
+		float temperature1 = 0;
+		float temperature2 = 0;
 		float humidity = 0;
 		float light = 0;
 		float fluorescence = 0;

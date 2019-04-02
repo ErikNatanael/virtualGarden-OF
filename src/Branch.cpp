@@ -220,6 +220,12 @@ leaf_ptr Branch::addLeaf() {
 ofColor Branch::calculateBranchColor() {
   float r,g,b,a;
   float branchSpecific = (thicknessGrowth-0.01)/0.02; // gives the branch specific number 0-1
+  // green to red as branches get thicker
+  /*r = thickness*7;
+  g = 100 - thickness*5 - branchSpecific*50;
+  b = (1 - (hp/maxHp)) * 255;
+  a = 100 + thickness*15;*/
+
   r = thickness*7;
   g = 100 - thickness*5 - branchSpecific*50;
   b = (1 - (hp/maxHp)) * 255;

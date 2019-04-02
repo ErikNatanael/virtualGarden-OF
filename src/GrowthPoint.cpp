@@ -13,3 +13,8 @@ void GrowthPoint::show() {
   ofSetColor(255);
   ofDrawEllipse(pos.x, pos.y, 4, 4);
 }
+
+void GrowthPoint::update(float dt) {
+  lifeTimeLeft -= dt;
+  if (lifeTimeLeft < 0) expired = true;
+}
