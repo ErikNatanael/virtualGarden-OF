@@ -51,7 +51,7 @@ void Branch::show(ofColor col, float totalTime) {
       float h = pos.y - drawTo.y;
       ofDrawEllipse(pos.x, pos.y, abs(w) + thickness, abs(h)*2 + thickness*.5);
       // weird digital artefact trees
-      ofDrawRectangle(pos.x, pos.y, abs(w)*thickness, h);
+      //ofDrawRectangle(pos.x, pos.y, abs(w)*thickness, h);
     }
 
     // draw leaves
@@ -226,10 +226,13 @@ ofColor Branch::calculateBranchColor() {
   b = (1 - (hp/maxHp)) * 255;
   a = 100 + thickness*15;*/
 
-  r = thickness*7;
-  g = 100 - thickness*5 - branchSpecific*50;
-  b = (1 - (hp/maxHp)) * 255;
-  a = 100 + thickness*15;
+  // light on dark
+  float bright = ofClamp(255 - thickness*7, 10, 255);
+  r = bright + (1 - (hp/maxHp)) * 150;
+  g = bright + branchSpecific*50;
+  b = bright ;
+  a = 255;
+
   r = ofClamp(r, 10, 200);
   g = ofClamp(g, 0, 255);
   b = ofClamp(b, 0, 255);

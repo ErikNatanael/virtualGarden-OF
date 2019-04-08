@@ -17,7 +17,7 @@ void ofApp::setup(){
   serial.setup(0, baud); //open the first device and talk to it at 57600 baud
   serial.flush();
 
-  int numTrees = 3;
+  int numTrees = 1;
   for (int i = 0; i < numTrees; i++) {
     int x = (ofGetWidth()/(numTrees+1))*(i+1);
     trees.push_back(Tree(glm::vec2(x, ofGetHeight())));
@@ -44,7 +44,8 @@ void ofApp::update(){
   readSerialData();
 
   if(!pause) {
-    sun.update(light);
+    sun.update(-1);
+    //sun.update(light);
   }
 
   if (doTrees) {
@@ -77,7 +78,8 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-  ofBackground(31+sun.strength*1., 31+sun.strength*1.1, 31+sun.strength*1.4);
+  //ofBackground(31+sun.strength*1., 31+sun.strength*1.1, 31+sun.strength*1.4);
+  ofBackground(0);
   sun.show();
 
   if (doTrees) {

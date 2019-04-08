@@ -30,7 +30,7 @@ public:
   int maxLeafAmount = 100;
   int energyReserveRequirement = 0;
   float  growBiggerRequirement = 100;
-  float passiveEnergyGain = 10.5;
+  float passiveEnergyGain = 40.5;
 
   int startingGrowthPoints = 300;
   float w = ofRandom(50, 150);
