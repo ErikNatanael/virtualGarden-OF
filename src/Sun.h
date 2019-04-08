@@ -14,7 +14,7 @@ public:
 
   void update(float strength_) {
     float maxVal = ofGetHeight() - 100;
-    float minVal = -600;
+    float minVal = ofGetHeight()*-.55;
     if(strength_ == -1) {
       float phase = sin(ofGetElapsedTimef()*0.1);
       strength = phase*50+60;
@@ -31,7 +31,7 @@ public:
   void show() {
     //noStroke();
     ofSetColor(255, 80+strength*1.5, 65 + strength); // more blue = brighter yellow
-    float size = ofGetWidth() - (strength*13);
+    float size = ofGetWidth() - (strength* (ofGetWidth()/147.0)); 
     ofDrawEllipse(pos.x, pos.y, size, size);
   }
 
