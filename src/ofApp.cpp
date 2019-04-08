@@ -57,7 +57,7 @@ void ofApp::update(){
   }
 
 
-  for(int i = 0; i < motionTrackingValues.size(); i++) {
+  /*for(int i = 0; i < motionTrackingValues.size(); i++) {
     if(ofRandomuf() > 0.99) {
       auto& v = motionTrackingValues[i];
       GrowthPoint temp = GrowthPoint(glm::vec2(v.x + ofRandomf()*20, v.y + ofRandomf()*20));
@@ -65,7 +65,7 @@ void ofApp::update(){
         t.growthPoints.push_back(temp);
       }
     }
-  }
+  }*/
 
   if (doRoses) {
     for (int i = 0; i < roseBushes.size(); i++) {

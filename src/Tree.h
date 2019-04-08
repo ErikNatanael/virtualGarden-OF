@@ -9,6 +9,8 @@
 #include "globals.h"
 #include "Sun.h"
 
+#define DISTANCE_SQUARED
+
 class Tree {
 public:
 
@@ -67,6 +69,11 @@ public:
     maxEnergy = energy * 1.5;
 
     startPointsSpawned = false;
+
+    #ifdef DISTANCE_SQUARED
+    maxDist = pow(maxDist, 2);
+    minDist = pow(minDist, 2);
+    #endif
   }
 
   void spawnGrowthPoints(int numGrowthPoints) {
@@ -111,9 +118,17 @@ public:
     bool found = false;
     //while (!found) {
     for (int i = 0; i < growthPoints.size(); i++) {
-      float dist = glm::distance(currentBranch->pos, growthPoints[i].pos);
+      float dist;
+      #ifndef DISTANCE_SQUARED
+      dist = glm::distance(currentBranch->pos, growthPoints[i].pos);
+      #else
+      glm::vec2 distanceVec = currentBranch->pos - growthPoints[i].pos;
+      dist = glm::dot(distanceVec, distanceVec);
+      #endif
       if (dist < maxDist) {
         found = true;
+        trunkFinished = true;
+        return;
       }
     }
     if (!found) {
@@ -121,8 +136,6 @@ public:
 
       currentBranch = newBranch;
       branches.push_back(newBranch);
-    } else {
-      trunkFinished = true;
     }
     //}
   }
@@ -138,7 +151,13 @@ public:
         for (int j = 0; j < branches.size(); j++) {
           branch_ptr b = branches[j];
           if(b->canGrowBranch()) {
-            float dist = glm::distance(l->pos, b->pos);
+            float dist;
+            #ifndef DISTANCE_SQUARED
+            dist = glm::distance(l->pos, b->pos);
+            #else
+            glm::vec2 distanceVec = l->pos - b->pos;
+            dist = glm::dot(distanceVec, distanceVec);
+            #endif
             if (dist < minDist) { // it doesn't count
               l->reached = true;
               closestBranch = NULL;
@@ -173,7 +192,11 @@ public:
             branch_ptr newBranch = b->next();
             newBranch->thicknessGrowth *= thicknessMul;
             // reject branches that are too close
+            #ifndef DISTANCE_SQUARED
             if(glm::distance(b->pos, newBranch->pos) > 2.) {
+            #else
+            if(glm::dot(b->pos, newBranch->pos) > 4.) {
+            #endif
               branches.push_back(newBranch);
               endSegmentBranches.push_back(newBranch);
               energy -= branchEnergyCost;
