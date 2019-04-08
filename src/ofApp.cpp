@@ -43,6 +43,16 @@ void ofApp::update(){
   receiveOscMessages();
   readSerialData();
 
+  // simplify tree if frameRate drops too low
+  static double lastTimeSimplification = 0;
+  if(ofGetFrameRate() < 30.0 && currentTime - lastTimeSimplification > 5.) {
+    static float thresh = 1;
+    for(auto& t : trees) {
+      t.simplifyTree(thresh);
+    }
+    thresh += 0.5;
+  }
+
   if(!pause) {
     sun.update(-1);
     //sun.update(light);
