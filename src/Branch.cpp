@@ -30,34 +30,39 @@ void Branch::resetBranch() {
   count = 0;
 }
 
-void Branch::show(ofColor col, float totalTime) {
+void Branch::show(ofColor col, float totalTime, bool redraw) {
   if(parent != NULL || isDead) {
-    ofSetColor(col);
-    //strokeWeight(thickness);
+    if(redraw || !everDrawn) {
+      ofSetColor(col);
+      //strokeWeight(thickness);
 
-    // set color by hp
-    // ofSetColor((hp/maxHp) * 255, 0, 0);
-    if(isDead) ofSetColor(255);
+      // set color by hp
+      // ofSetColor((hp/maxHp) * 255, 0, 0);
+      if(isDead) ofSetColor(255);
 
-    glm::vec2 drawTo;
-    if(isDead) drawTo = deadStartPos;
-    else       drawTo = parent->pos;
+      glm::vec2 drawTo;
+      if(isDead) drawTo = deadStartPos;
+      else       drawTo = parent->pos;
 
-    if(thickness < 10) {
-      ofSetLineWidth(thickness);
-      ofDrawLine(pos.x, pos.y, drawTo.x, drawTo.y);
-    } else {
-      float w = pos.x - drawTo.x;
-      float h = pos.y - drawTo.y;
-      ofDrawEllipse(pos.x, pos.y, abs(w) + thickness, abs(h)*2 + thickness*.5);
-      // weird digital artefact trees
-      //ofDrawRectangle(pos.x, pos.y, abs(w)*thickness, h);
+      if(thickness < 10) {
+        ofSetLineWidth(thickness);
+        ofDrawLine(pos.x, pos.y, drawTo.x, drawTo.y);
+      } else {
+        float w = pos.x - drawTo.x;
+        float h = pos.y - drawTo.y;
+        ofDrawEllipse(pos.x, pos.y, abs(w) + thickness, abs(h)*2 + thickness*.5);
+        // weird digital artefact trees
+        //ofDrawRectangle(pos.x, pos.y, abs(w)*thickness, h);
+      }
+      everDrawn = true;
     }
+  }
+}
 
-    // draw leaves
-    for (int i = 0; i < leaves.size(); i++) {
-      leaves[i]->show(totalTime, direction);
-    }
+void Branch::drawLeaves(float totalTime) {
+  // draw leaves
+  for (int i = 0; i < leaves.size(); i++) {
+    leaves[i]->show(totalTime, direction);
   }
 }
 
