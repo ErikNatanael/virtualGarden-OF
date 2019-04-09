@@ -1,7 +1,19 @@
 #include "ofApp.h"
 #include "globals.h"
 
-bool overlay = true;
+#include <sstream>
+
+// function from https://stackoverflow.com/questions/16605967/set-precision-of-stdto-string-when-converting-floating-point-values
+template <typename T>
+std::string to_string_with_precision(const T a_value, const int n = 6)
+{
+    std::ostringstream out;
+    out.precision(n);
+    out << std::fixed << a_value;
+    return out.str();
+}
+
+bool overlay = true; // initialising the global variable overlay
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -111,48 +123,48 @@ void ofApp::draw(){
   }
 
   if (overlay) {
-    string fps = "fps " + to_string(ofGetFrameRate());
+    string fps = "fps: " + to_string_with_precision(ofGetFrameRate(), 1);
     ofSetColor(255);
     font.drawString(fps, 10, 30);
 
     int nb = 0;
     for (Tree& t : trees) nb += t.branches.size();
     for (RoseBush& t : roseBushes) nb += t.branches.size();
-    string numBranches = "number of branches: " + to_string(nb);
+    string numBranches = "branches: " + to_string(nb);
     font.drawString(numBranches, 10, 60);
 
     int ngp = 0;
     for (Tree& t : trees) ngp += t.growthPoints.size();
     for (RoseBush& t : roseBushes) ngp += t.growthPoints.size();
-    string numPoints = "number of points: " + to_string(ngp);
+    string numPoints = "attraction points: " + to_string(ngp);
     font.drawString(numPoints, 10, 90);
 
     int nl = 0;
     for (Tree& t : trees) nl += t.leaves.size();
     for (RoseBush& t : roseBushes) nl += t.leaves.size();
-    string numLeaves = "number of leaves: " + to_string(nl);
+    string numLeaves = "leaves: " + to_string(nl);
     font.drawString(numLeaves, 10, 120);
 
     int nr = 0;
     for (RoseBush& t : roseBushes) nr += t.roses.size();
-    string numRoses = "number of roses: " + to_string(nr);
+    string numRoses = "roses: " + to_string(nr);
     font.drawString(numRoses, 10, 150);
 
     int nlb = 0;
     for (auto& t : trees) nlb += t.looseBranches.size();
-    string numLooseBranches = "number of loose branches: " + to_string(nlb);
+    string numLooseBranches = "loose branches: " + to_string(nlb);
     font.drawString(numLooseBranches, 10, 180);
 
     string str;
-    str = "humidity:     " + to_string(humidity);
+    str = "humidity:     " + to_string_with_precision(humidity, 1);
     font.drawString(str, 10, 240);
-    str = "light:        " + to_string(light);
+    str = "light:        " + to_string_with_precision(light, 1);
     font.drawString(str, 10, 270);
-    str = "temperature1: " + to_string(temperature1);
+    str = "temperature1: " + to_string_with_precision(temperature1, 1);
     font.drawString(str, 10, 300);
-    str = "temperature2: " + to_string(temperature2);
+    str = "temperature2: " + to_string_with_precision(temperature2, 1);
     font.drawString(str, 10, 330);
-    str = "fluorescence: " + to_string(fluorescence);
+    str = "fluorescence: " + to_string_with_precision(fluorescence, 1);
     font.drawString(str, 10, 360);
   }
 

@@ -283,7 +283,7 @@ public:
     }
 
     if (overlay) {
-      string eg = "energy: " + to_string(energy);
+      string eg = "energy: " + to_string(int(energy));
       ofSetColor(255);
       font.drawString(eg, root->pos.x-100, ofGetHeight()-(h+hOffset));
 

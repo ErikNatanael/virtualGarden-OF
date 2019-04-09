@@ -90,6 +90,8 @@ void Branch::update(float dt) {
     leaves[i]->update(dt, pos);
     if (leaves[i]->dead) leaves.erase(leaves.begin() + i);
   }
+
+  if(thickness > 30.) thickness = 30;
 }
 
 void Branch::deleteBranch() {
