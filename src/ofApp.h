@@ -61,8 +61,8 @@ class ofApp : public ofBaseApp{
 		int motionTrackingPoints = 20;
 		float temperature1 = 0;
 		float temperature2 = 0;
-		float humidity = 0;
-		float light = 0;
+		int humidity = 0;
+		int light = 0;
 		float fluorescence = 0;
 
 };

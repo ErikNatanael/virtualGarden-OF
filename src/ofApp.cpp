@@ -323,25 +323,35 @@ void ofApp::readSerialData() {
   }
 }
 
+// function from https://stackoverflow.com/questions/4654636/how-to-determine-if-a-string-is-a-number-with-c
+bool is_number(const std::string& s)
+{
+    return !s.empty() && std::find_if(s.begin(),
+        s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
+}
+
 void ofApp::parseSerialData() {
   //cout << currentMessage.str() << endl;
   vector<float> values(5, -1);
   string v;
   int i = 0;
   while(currentMessage >> v && i < 5) {
-    values[i] = stoi(v);
-    i++;
+    if(is_number(v)) {
+      values[i] = stoi(v);
+      i++;
+    } else {
+      cout << "Error: serial message was not a number: " << v << endl;
+    }
   }
   if(i == 5) {
     // all values were registered
     humidity = values[3];
     light = values[1];
-    temperature1 = values[0];
+    temperature1 = values[0]/2.0;
     temperature2 = values[2];
     fluorescence = values[4];
   }
 
   currentMessage.str("");
   currentMessage.clear();
-
 }
