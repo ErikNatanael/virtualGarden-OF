@@ -19,6 +19,7 @@ bool overlay = true; // initialising the global variable overlay
 void ofApp::setup(){
 
   ofSetWindowTitle("!openFrameworks!: Virtual Garden");
+  ofHideCursor();
 
   font.load("SpaceMono-Regular.ttf", 20);
 

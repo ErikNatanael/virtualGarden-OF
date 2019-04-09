@@ -23,7 +23,7 @@ public:
   bool canSpawn = true;
   bool isDeleted = false;
   bool isDead = false;
-  bool everDrawn = false; // if the branch has ever been drawn yet
+  bool needsRedraw = true;
 
   float maxHp = 2;
   float hp = 2;

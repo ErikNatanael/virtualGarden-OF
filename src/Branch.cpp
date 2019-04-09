@@ -32,7 +32,7 @@ void Branch::resetBranch() {
 
 void Branch::show(ofColor col, float totalTime, bool redraw) {
   if(parent != NULL || isDead) {
-    if(redraw || !everDrawn) {
+    if(redraw || needsRedraw) {
       ofSetColor(col);
       //strokeWeight(thickness);
 
@@ -54,7 +54,7 @@ void Branch::show(ofColor col, float totalTime, bool redraw) {
         // weird digital artefact trees
         //ofDrawRectangle(pos.x, pos.y, abs(w)*thickness, h);
       }
-      everDrawn = true;
+      needsRedraw = false;
     }
   }
 }
