@@ -23,6 +23,7 @@ public:
   bool canSpawn = true;
   bool isDeleted = false;
   bool isDead = false;
+  bool needsRedraw = true;
 
   float maxHp = 2;
   float hp = 2;
@@ -35,7 +36,8 @@ public:
   Branch(std::shared_ptr<Branch> parent_, glm::vec2 p_, glm::vec2 d_);
   std::shared_ptr<Branch> next();
   void resetBranch();
-  void show(ofColor col, float totalTime);
+  void show(ofColor col, float totalTime, bool redraw = true);
+  void drawLeaves(float totalTime);
   void propagateGrowth(float growthAmount);
   void propagateDeath();
   void update(float dt);

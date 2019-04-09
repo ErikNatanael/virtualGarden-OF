@@ -51,6 +51,10 @@ public:
 
   bool doLeaves = true;
 
+  ofFbo fbo;
+  int redrawCounter = 0;
+  int framesBetweenRedraw = 30;
+
 
   Tree(glm::vec2 rootPos) {
 
@@ -70,9 +74,11 @@ public:
 
     startPointsSpawned = false;
 
+    fbo.allocate(ofGetWidth(), ofGetHeight());
+
     #ifdef DISTANCE_SQUARED
-    maxDist = pow(maxDist, 2);
-    minDist = pow(minDist, 2);
+      maxDist = pow(maxDist, 2);
+      minDist = pow(minDist, 2);
     #endif
   }
 
@@ -270,16 +276,39 @@ public:
   }
 
   void show(ofTrueTypeFont font, float totalTime) {
+    redrawCounter++;
+    bool redraw = false;
+    if(redrawCounter >= framesBetweenRedraw) {
+      redraw = true;
+      redrawCounter = 0;
+    }
+
+    fbo.begin();
+    if(redraw) ofBackground(0, 0);
 
     for (int i = 0; i < branches.size(); i++) {
-
       // branches[i]->show(branchColorByIndex(i), totalTime);
-      branches[i]->show(branches[i]->calculateBranchColor(), totalTime);
+      branches[i]->show(branches[i]->calculateBranchColor(), totalTime, redraw);
     }
 
     for (int i = 0; i < looseBranches.size(); i++) {
 
       looseBranches[i]->show(ofColor(0), totalTime);
+    }
+
+    // branch heatmap (shows where the most amount of branches are)
+    #ifdef DEBUG
+    ofSetColor(255, 1, 2, 2);
+    for(branch_ptr& b : branches) {
+      ofDrawEllipse(b->pos.x, b->pos.y, 10, 10);
+    }
+    #endif
+
+    fbo.end();
+    fbo.draw(0, 0);
+
+    for(branch_ptr& b : branches) {
+      b->drawLeaves(totalTime);
     }
 
     if (overlay) {
@@ -290,19 +319,13 @@ public:
       for (int i = 0; i < growthPoints.size(); i++) {
         growthPoints[i].show();
       }
+
+      // show latest branch
+      branch_ptr b = branches.back();
+      ofDrawEllipse(b->pos.x, b->pos.y, 20, 20);
     }
 
-    // branch heatmap (shows where the most amount of branches are)
-    #ifdef DEBUG
-    ofSetColor(255, 1, 2, 2);
-    for(branch_ptr b : branches) {
-      ofDrawEllipse(b->pos.x, b->pos.y, 10, 10);
-    }
-    #endif
 
-    // show latest branch
-    // Branch b = branches.get(branches.size()-1);
-    // ellipse(b.pos.x, b.pos.y, 20, 20);
   }
 
   void simplifyTree(float distanceThreshold) {
