@@ -52,7 +52,8 @@ void Branch::show(ofColor col, float totalTime, bool redraw) {
         float h = pos.y - drawTo.y;
         ofDrawEllipse(pos.x, pos.y, abs(w) + thickness, abs(h)*2 + thickness*.5);
         // weird digital artefact trees
-        //ofDrawRectangle(pos.x, pos.y, abs(w)*thickness, h);
+        if(visualType == BranchVisual::DIGITAL)
+          ofDrawRectangle(pos.x, pos.y, abs(w)*thickness, 2);
       }
       needsRedraw = false;
     }
@@ -228,17 +229,24 @@ ofColor Branch::calculateBranchColor() {
   float r,g,b,a;
   float branchSpecific = (thicknessGrowth-0.01)/0.02; // gives the branch specific number 0-1
   // green to red as branches get thicker
-  /*r = thickness*7;
-  g = 100 - thickness*5 - branchSpecific*50;
-  b = (1 - (hp/maxHp)) * 255;
-  a = 100 + thickness*15;*/
-
-  // light on dark
-  float bright = ofClamp(255 - thickness*7, 10, 255);
-  r = bright + (1 - (hp/maxHp)) * 150;
-  g = bright + branchSpecific*50;
-  b = bright ;
-  a = 255;
+  if(visualType == BranchVisual::RED) {
+    r = thickness*7;
+    g = 100 - thickness*5 - branchSpecific*50;
+    b = (1 - (hp/maxHp)) * 255;
+    a = 100 + thickness*15;
+  } else if (visualType == BranchVisual::GREEN) {
+    // light on dark
+    float bright = ofClamp(255 - thickness*7, 10, 255);
+    r = bright + (1 - (hp/maxHp)) * 150;
+    g = bright + branchSpecific*50;
+    b = bright ;
+    a = 255;
+  } else {
+    r = branchSpecific * 55.0;
+    g = 150;
+    b = 150 + ofRandom(100);
+    a = 255;
+  }
 
   r = ofClamp(r, 10, 200);
   g = ofClamp(g, 0, 255);

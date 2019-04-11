@@ -5,6 +5,8 @@
 #include "Leaf.h"
 #include <memory>
 
+enum struct BranchVisual {GREEN, DIGITAL, RED, RANDOM};
+
 // std::enable_shared_from_this<Branch> is an easy way to create a shared_ptr
 // from an instance of an object (which the next method needs to do)
 class Branch : public std::enable_shared_from_this<Branch> {
@@ -17,6 +19,7 @@ public:
   vector<leaf_ptr > leaves;
   glm::vec2 direction;
   glm::vec2 originalDirection;
+  BranchVisual visualType = BranchVisual::DIGITAL;
   int count = 0;
   float length = 3;
   bool isEndSegment = true;

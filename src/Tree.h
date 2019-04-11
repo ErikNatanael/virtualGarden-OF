@@ -11,6 +11,8 @@
 
 #define DISTANCE_SQUARED
 
+enum struct TreeVisual {GREEN, DIGITAL, CROOKED};
+
 class Tree {
 public:
 
@@ -25,6 +27,9 @@ public:
   branch_ptr currentBranch;
   vector<GrowthPoint> growthPoints;
 
+  TreeVisual visualType = TreeVisual::CROOKED;
+  BranchVisual branchType = BranchVisual::RED;
+
   float leafEnergyCost = 10;
   float branchEnergyCost = 15.;
   float energy = 0.;
@@ -32,7 +37,7 @@ public:
   int maxLeafAmount = 100;
   int energyReserveRequirement = 0;
   float  growBiggerRequirement = 100;
-  float passiveEnergyGain = 40.5;
+  float passiveEnergyGain = 10.5;
 
   int startingGrowthPoints = 300;
   float w = ofRandom(50, 150);
@@ -149,7 +154,12 @@ public:
 
   void growBranches() {
 
-    if(energy > energyReserveRequirement + branchEnergyCost*5) {
+    int numBranchesRequired = 5;
+    if(visualType == TreeVisual::CROOKED) {
+      numBranchesRequired = 1;
+    }
+
+    if(energy > energyReserveRequirement + branchEnergyCost*numBranchesRequired) {
       for (int i = 0; i < growthPoints.size(); i++) {
         GrowthPoint* l = &growthPoints[i];
         branch_ptr closestBranch = NULL;
@@ -197,6 +207,12 @@ public:
           if (energy > energyReserveRequirement && energy > branchEnergyCost) {
             branch_ptr newBranch = b->next();
             newBranch->thicknessGrowth *= thicknessMul;
+            if(branchType == BranchVisual::RANDOM) {
+              newBranch->visualType = static_cast<BranchVisual>(ofRandom((int)BranchVisual::RANDOM - 1));
+            } else {
+              newBranch->visualType = branchType;
+            }
+
             // reject branches that are too close
             #ifndef DISTANCE_SQUARED
             if(glm::distance(b->pos, newBranch->pos) > 2.) {
@@ -273,7 +289,9 @@ public:
   }
 
   ofColor branchColorByIndex(int i) {
-    return ofColor(i*0.2, ofClamp(i*0.2-100, 0, 255), ofClamp(i*0.2-200, 0, 255));
+    // return ofColor(i*0.2, ofClamp(i*0.2-100, 0, 255), ofClamp(i*0.2-200, 0, 255));
+    // quicker progression:
+    return ofColor(i*0.4, ofClamp(i*0.4-100, 0, 255), ofClamp(i*0.4-200, 0, 255));
   }
 
   void show(ofTrueTypeFont font, float totalTime) {
@@ -288,8 +306,10 @@ public:
     if(redraw) ofBackground(0, 0);
 
     for (int i = 0; i < branches.size(); i++) {
-      // branches[i]->show(branchColorByIndex(i), totalTime);
-      branches[i]->show(branches[i]->calculateBranchColor(), totalTime, redraw);
+      if(visualType == TreeVisual::DIGITAL)
+        branches[i]->show(branchColorByIndex(i), totalTime);
+      else
+        branches[i]->show(branches[i]->calculateBranchColor(), totalTime, redraw);
     }
 
     for (int i = 0; i < looseBranches.size(); i++) {
@@ -306,6 +326,9 @@ public:
     #endif
 
     fbo.end();
+    if(visualType == TreeVisual::DIGITAL) {
+      ofSetColor(255, 255);
+    }
     fbo.draw(0, 0);
 
     for(branch_ptr& b : branches) {
@@ -446,7 +469,12 @@ public:
     float energySpent = root->fillHP(energy);
     energy -= energySpent;
 
-    if(energy > growBiggerRequirement && trunkFinished && growthPoints.size() < 10) growBigger();
+    int maxPointsLeft = 10;
+    if(visualType == TreeVisual::CROOKED) {
+      maxPointsLeft = 1000;
+    }
+
+    if(energy > growBiggerRequirement && trunkFinished && growthPoints.size() < maxPointsLeft) growBigger();
 
     // update GrowthPoints
     for(int i = growthPoints.size()-1; i >= 0; i--) {
