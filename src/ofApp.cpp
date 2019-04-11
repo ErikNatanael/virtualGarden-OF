@@ -58,7 +58,10 @@ void ofApp::update(){
     resetTreeTime = ofRandom(2, 30);
     trees.clear();
     int x = ofGetWidth()*0.5 + ofRandom(ofGetWidth()*-0.1, ofGetWidth()*0.1);
-    trees.push_back(Tree(glm::vec2(x, ofGetHeight())));
+    Tree newTree = Tree(glm::vec2(x, ofGetHeight()));
+    newTree.visualType = static_cast<TreeVisual>(ofRandom((int)TreeVisual::LAST));
+    newTree.branchType = static_cast<BranchVisual>(ofRandom((int)BranchVisual::RANDOM));
+    trees.push_back(newTree);
   }
 
   receiveOscMessages();

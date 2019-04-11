@@ -11,7 +11,7 @@
 
 #define DISTANCE_SQUARED
 
-enum struct TreeVisual {GREEN, DIGITAL, CROOKED};
+enum struct TreeVisual {GREEN, DIGITAL, CROOKED, LAST};
 
 class Tree {
 public:
@@ -27,7 +27,7 @@ public:
   branch_ptr currentBranch;
   vector<GrowthPoint> growthPoints;
 
-  TreeVisual visualType = TreeVisual::CROOKED;
+  TreeVisual visualType = TreeVisual::GREEN;
   BranchVisual branchType = BranchVisual::RED;
 
   float leafEnergyCost = 10;
