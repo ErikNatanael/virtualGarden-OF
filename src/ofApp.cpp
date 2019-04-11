@@ -53,6 +53,14 @@ void ofApp::update(){
   lastTime = currentTime;
   totalTime += dt;
 
+  if(currentTime - lastTreeReset > resetTreeTime) {
+    lastTreeReset = currentTime;
+    resetTreeTime = ofRandom(2, 30);
+    trees.clear();
+    int x = ofGetWidth()*0.5 + ofRandom(ofGetWidth()*-0.1, ofGetWidth()*0.1);
+    trees.push_back(Tree(glm::vec2(x, ofGetHeight())));
+  }
+
   receiveOscMessages();
   readSerialData();
 
@@ -202,11 +210,13 @@ void ofApp::keyPressed(int key){
     case OF_KEY_UP:
       for(auto& t : trees) {
         //t.spawnGrowthPointsAroundEdge(20, 20, 20);
-        t.w += 30;
-        t.h += 20;
+        //t.w += 30;
+        //t.h += 20;
         // t.w *= 1.05;
         // t.h *= 1.05;
-        t.spawnGrowthPoints(100);
+        //t.spawnGrowthPoints(100);
+
+        t.growBigger();
       }
       break;
   }

@@ -68,7 +68,7 @@ public:
     startingGrowthPoints = floor((w*h)*0.005);
     rounding = ofRandom(0.7)+.3;
     hOffset = ofRandom(100)+50;
-    growthSpeed = glm::vec2(ofRandom(5, 15), ofRandom(5, 15));
+    growthSpeed = glm::vec2(ofRandom(20, 35), ofRandom(10, 20));
     energy = branchEnergyCost * 200;
     maxEnergy = energy * 1.5;
 
@@ -267,7 +267,8 @@ public:
   void growBigger() {
     w += growthSpeed.x;
     h += growthSpeed.y;
-    int numPoints = ofClamp(floor((w*h)*0.003), 10, 50);
+    hOffset += growthSpeed.y*0.2;
+    int numPoints = ofClamp(floor((w*h)*0.005), 10, 50);
     spawnGrowthPoints(numPoints);
   }
 
@@ -445,7 +446,7 @@ public:
     float energySpent = root->fillHP(energy);
     energy -= energySpent;
 
-    //if(energy > growBiggerRequirement && trunkFinished && growthPoints.size() < 5) growBigger();
+    if(energy > growBiggerRequirement && trunkFinished && growthPoints.size() < 10) growBigger();
 
     // update GrowthPoints
     for(int i = growthPoints.size()-1; i >= 0; i--) {

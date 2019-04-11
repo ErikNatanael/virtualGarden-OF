@@ -65,4 +65,7 @@ class ofApp : public ofBaseApp{
 		int light = 0;
 		float fluorescence = 0;
 
+		float resetTreeTime = 0;
+		float lastTreeReset = 0;
+
 };
