@@ -36,6 +36,8 @@ void ofApp::setup(){
   oscReceiver.setup(7771);
   motionTrackingValues = vector<glm::vec2>(motionTrackingPoints);
 
+  oscSender.setup("127.0.0.1", 7771);
+
   int baud = 115200;
   serial.setup(0, baud); //open the first device and talk to it at 57600 baud
   serial.flush();
@@ -438,9 +440,13 @@ void ofApp::receiveOscMessages() {
       }
 		}
 
-    else if (m.getAddress() == "/temperature"  )
+    else if (m.getAddress() == "/temperature1"  )
 		{
 			temperature1 = m.getArgAsFloat(0);
+		}
+    else if (m.getAddress() == "/temperature2"  )
+		{
+			temperature2 = m.getArgAsFloat(0);
 		}
     else if (m.getAddress() == "/humidity"  )
 		{
@@ -455,6 +461,35 @@ void ofApp::receiveOscMessages() {
 			fluorescence = m.getArgAsFloat(0);
 		}
   }
+}
+
+void ofApp::sendOscData() {
+  ofxOscMessage m;
+
+  m.setAddress("/humidity");
+  m.addFloatArg(humidity);
+  oscSender.sendMessage(m);
+  m.clear();
+
+  m.setAddress("/temperature1");
+  m.addFloatArg(temperature1);
+  oscSender.sendMessage(m);
+  m.clear();
+
+  m.setAddress("/temperature2");
+  m.addFloatArg(temperature2);
+  oscSender.sendMessage(m);
+  m.clear();
+
+  m.setAddress("/light");
+  m.addFloatArg(light);
+  oscSender.sendMessage(m);
+  m.clear();
+
+  m.setAddress("/fluorescence");
+  m.addFloatArg(fluorescence);
+  oscSender.sendMessage(m);
+  m.clear();
 }
 
 void ofApp::readSerialData() {
@@ -500,6 +535,8 @@ void ofApp::parseSerialData() {
     temperature1 = values[0]/2.0;
     temperature2 = values[2];
     fluorescence = values[4];
+
+    sendOscData(); // pass it on to the other raspberry pi
   }
 
   currentMessage.str("");

@@ -30,6 +30,7 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		void receiveOscMessages();
+		void sendOscData();
 		void readSerialData();
 		void parseSerialData();
 		void makeNewTree();
@@ -62,6 +63,7 @@ class ofApp : public ofBaseApp{
 		ofImage grabImg;
 
 		ofxOscReceiver oscReceiver;
+		ofxOscSender oscSender;
 		ofSerial serial;
 		stringstream currentMessage;
 		vector<glm::vec2> motionTrackingValues;
