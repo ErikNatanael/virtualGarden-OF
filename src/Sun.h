@@ -22,8 +22,8 @@ public:
       phase = phase*0.5+.5;
       pos = glm::vec2(pos.x, ofGetHeight() - (phase*(maxVal-minVal)+minVal));
     } else {
-      strength = strength_;
-      phase = strength/400;
+      phase = strength_/200;
+      strength = phase*100+10;
       pos = glm::vec2(pos.x, ofGetHeight() - (phase*(maxVal-minVal)+minVal));
     }
   }
