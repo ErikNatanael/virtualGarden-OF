@@ -242,9 +242,9 @@ ofColor Branch::calculateBranchColor() {
     b = bright ;
     a = 255;
   } else {
-    r = branchSpecific * 155.0;
+    r = 100 + branchSpecific * 155.0;;
     g = 150;
-    b = 50 + ofRandom(100);
+    b = 50 + branchSpecific * 55.0;
     a = 255;
   }
 
