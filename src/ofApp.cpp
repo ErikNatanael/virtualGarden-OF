@@ -91,8 +91,8 @@ void ofApp::update(){
   }
 
   if(!pause) {
-    sun.update(-1);
-    //sun.update(light);
+    if(light != 0) sun.update(light);
+    else           sun.update(-1);
   }
 
   if (doTrees) {
@@ -222,7 +222,7 @@ void ofApp::draw(){
 
     // optimised version (not keeping the old trees)
     ofPushMatrix();
-    if(ofRandomuf() > 0.9) ofTranslate(pow(ofRandomuf(), 3)*14, ofRandomf()*2);
+    if(ofRandomuf() > 0.9) ofTranslate(pow(ofRandomuf(), 3)*14, ofRandomf()*1);
     ofSetColor(255, 255);
     deadTreesFbo.draw(0, 0);
     ofPopMatrix();

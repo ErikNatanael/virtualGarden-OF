@@ -78,8 +78,10 @@ public:
     rounding = ofRandom(0.7)+.3;
     hOffset = ofRandom(100)+50;
     growthSpeed = glm::vec2(ofRandom(20, 35), ofRandom(10, 20));
-    energy = branchEnergyCost * 200;
+    //energy = branchEnergyCost * 200;
     maxEnergy = energy * 1.5;
+
+    energy = ofRandom(branchEnergyCost * 100, branchEnergyCost * 500);
 
     treeBrightness = ofRandom(200, 255);
     passiveEnergyGain = pow(ofRandomuf(), 2)*100 + 5;
@@ -497,7 +499,7 @@ public:
 
     int maxPointsLeft = 10;
     if(visualType == TreeVisual::CROOKED) {
-      maxPointsLeft = 1000;
+      maxPointsLeft = 10;
     }
 
     if(energy > growBiggerRequirement && trunkFinished && growthPoints.size() < maxPointsLeft) growBigger();
