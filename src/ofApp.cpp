@@ -53,10 +53,13 @@ void ofApp::setup(){
 
   sun = Sun(glm::vec2(ofGetWidth()/2, 0), 10.);
 
+  plotter.setWindowSize(ofGetWidth()*0.3);
   plotter["energy"] << 0;
   plotter["points"] << 0;
+  plotter["branches"] << 0;
   plotter["energyHistory"] << 0;
   plotter["pointsHistory"] << 0;
+  plotter["branchesHistory"] << 0;
 
 }
 
@@ -108,21 +111,28 @@ void ofApp::update(){
     // add plotting data
     plotter["energy"] << trees[0].energy;
     plotter["points"] << float(trees[0].growthPoints.size());
+    plotter["branches"] << float(trees[0].branches.size());
     const int AVERAGE_FRAMES = 30;
     static float averageEnergy = 0;
     static float averagePoints = 0;
+    static float averageBranches = 0;
     averageEnergy += trees[0].energy;
     averagePoints += float(trees[0].growthPoints.size());
+    averageBranches += float(trees[0].branches.size());
     if(ofGetFrameNum() % AVERAGE_FRAMES == 0) {
       averageEnergy /= AVERAGE_FRAMES;
       averagePoints /= AVERAGE_FRAMES;
+      averageBranches /= AVERAGE_FRAMES;
       plotter["energyHistory"] << averageEnergy;
       plotter["pointsHistory"] << averagePoints;
+      plotter["branchesHistory"] << averageBranches;
       averagePoints = 0;
       averageEnergy = 0;
+      averageBranches = 0;
     } else {
       plotter.history["energyHistory"].erase(plotter.history["energyHistory"].end()-1);
       plotter.history["pointsHistory"].erase(plotter.history["pointsHistory"].end()-1);
+      plotter.history["branchesHistory"].erase(plotter.history["branchesHistory"].end()-1);
     }
 
     for(int i = deadTrees.size()-1; i >= 0; i--) {
@@ -256,27 +266,17 @@ void ofApp::draw(){
   ofPopMatrix();
 
   if (overlay) {
-    string fps = "fps: " + to_string_with_precision(ofGetFrameRate(), 1);
-    ofSetColor(255);
-    font.drawString(fps, 10, 30);
-
     int nb = 0;
     for (Tree& t : trees) nb += t.branches.size();
     for (RoseBush& t : roseBushes) nb += t.branches.size();
-    string numBranches = "branches: " + to_string(nb);
-    font.drawString(numBranches, 10, 60);
 
     int ngp = 0;
     for (Tree& t : trees) ngp += t.growthPoints.size();
     for (RoseBush& t : roseBushes) ngp += t.growthPoints.size();
-    string numPoints = "attraction points: " + to_string(ngp);
-    font.drawString(numPoints, 10, 90);
 
     int nl = 0;
     for (Tree& t : trees) nl += t.leaves.size();
     for (RoseBush& t : roseBushes) nl += t.leaves.size();
-    string numLeaves = "leaves: " + to_string(nl);
-    font.drawString(numLeaves, 10, 120);
 
     // int nr = 0;
     // for (RoseBush& t : roseBushes) nr += t.roses.size();
@@ -288,22 +288,35 @@ void ofApp::draw(){
     // string numLooseBranches = "loose branches: " + to_string(nlb);
     // font.drawString(numLooseBranches, 10, 180);
 
-    string str;
-    str = "humidity:     " + to_string_with_precision(humidity, 1);
-    font.drawString(str, 10, 240);
-    str = "light:        " + to_string_with_precision(light, 1);
-    font.drawString(str, 10, 270);
-    str = "temperature1: " + to_string_with_precision(temperature1, 1);
-    font.drawString(str, 10, 300);
-    str = "temperature2: " + to_string_with_precision(temperature2, 1);
-    font.drawString(str, 10, 330);
-    str = "fluorescence: " + to_string_with_precision(fluorescence, 1);
-    font.drawString(str, 10, 360);
+    if(true) {
+      string str;
+      ofSetColor(255);
+      str = "fps:            " + to_string_with_precision(ofGetFrameRate(), 1);
+      font.drawString(str, 10, 30);
+      str = "branches:       " + to_string(nb);
+      font.drawString(str, 10, 60);
+      // str = "attraction points: " + to_string(ngp);
+      // font.drawString(str, 10, 90);
+      str = "leaves:         " + to_string(nl);
+      font.drawString(str, 10, 90);
 
-    plotter.drawCustomPlot("energy", 0, ofGetHeight()*0.8, ofGetWidth()*0.4, ofGetHeight()*0.2);
-    plotter.drawCustomPlot("points", ofGetWidth()*0.6, ofGetHeight()*0.8, ofGetWidth()*0.4, ofGetHeight()*0.2);
-    plotter.drawCustomPlot("energyHistory", 0, ofGetHeight()*0.6, ofGetWidth()*0.4, ofGetHeight()*0.2);
-    plotter.drawCustomPlot("pointsHistory", ofGetWidth()*0.6, ofGetHeight()*0.6, ofGetWidth()*0.4, ofGetHeight()*0.2);
+      str = "humidity:       " + to_string_with_precision(humidity, 1);
+      font.drawString(str, 10, 150);
+      str = "light:          " + to_string_with_precision(light, 1);
+      font.drawString(str, 10, 180);
+      str = "temperature1:   " + to_string_with_precision(temperature1, 1);
+      font.drawString(str, 10, 210);
+      str = "temperature2:   " + to_string_with_precision(temperature2, 1);
+      font.drawString(str, 10, 240);
+      str = "fluorescence:   " + to_string_with_precision(fluorescence, 1);
+      font.drawString(str, 10, 270);
+    }
+
+    ofSetColor(255);
+    plotter.drawCustomPlot("energy", 0, ofGetHeight()*0.85, ofGetWidth()*0.3, ofGetHeight()*0.15);
+    plotter.drawCustomPlot("branches", ofGetWidth()*0.7, ofGetHeight()*0.85, ofGetWidth()*0.3, ofGetHeight()*0.15);
+    plotter.drawCustomPlot("energyHistory", 0, ofGetHeight()*0.7, ofGetWidth()*0.3, ofGetHeight()*0.15);
+    plotter.drawCustomPlot("branchesHistory", ofGetWidth()*0.7, ofGetHeight()*0.7, ofGetWidth()*0.3, ofGetHeight()*0.15);
   }
 }
 
