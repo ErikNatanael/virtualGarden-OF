@@ -24,6 +24,8 @@ void ofApp::setup(){
 
   font.load("SpaceMono-Regular.ttf", 20);
 
+  deadTreesFbo.allocate(ofGetWidth(), ofGetHeight());
+
   oscReceiver.setup(7771);
   motionTrackingValues = vector<glm::vec2>(motionTrackingPoints);
 
@@ -62,14 +64,7 @@ void ofApp::update(){
   if(currentTime - lastTreeReset > resetTreeTime) {
     lastTreeReset = currentTime;
     resetTreeTime = ofRandom(2, 30);
-    trees[0].killTree();
-    deadTrees.push_back(trees[0]);
-    trees.clear();
-    int x = ofGetWidth()*0.5 + ofRandom(ofGetWidth()*-0.3, ofGetWidth()*0.3);
-    Tree newTree = Tree(glm::vec2(x, ofGetHeight()));
-    newTree.visualType = static_cast<TreeVisual>(ofRandom((int)TreeVisual::LAST));
-    newTree.branchType = static_cast<BranchVisual>(ofRandom((int)BranchVisual::RANDOM));
-    trees.push_back(newTree);
+    makeNewTree();
   }
 
   receiveOscMessages();
@@ -78,11 +73,16 @@ void ofApp::update(){
   // simplify tree if frameRate drops too low
   static double lastTimeSimplification = 0;
   if(ofGetFrameRate() < 30.0 && ((currentTime - lastTimeSimplification) > 5.) ) {
-    static float thresh = 1;
-    for(auto& t : trees) {
-      t.simplifyTree(thresh);
+
+    if(simplificationThresh < 3) {
+      for(auto& t : trees) {
+        t.simplifyTree(simplificationThresh);
+      }
+      simplificationThresh += 0.5;
+    } else {
+      // make a new tree
+      makeNewTree();
     }
-    thresh += 0.5;
     lastTimeSimplification = currentTime;
   }
 
@@ -144,6 +144,33 @@ void ofApp::update(){
     }
   }
 
+  // flickering
+
+  static int flickerOverlay = 0;
+  if(flickerOverlay > 0) {
+    if(ofRandomuf() > 0.8) {
+      overlay = !overlay;
+    }
+    flickerOverlay--;
+  } else {
+    if(ofRandomuf() > 0.998) {
+      flickerOverlay = ofRandom(20, 40);
+    }
+  }
+
+  static int flickerDeadTrees = 0;
+  if(flickerDeadTrees > 0) {
+    if(ofRandomuf() > 0.6) {
+      showDeadTrees = !showDeadTrees;
+    }
+    flickerDeadTrees--;
+  } else {
+    showDeadTrees = false;
+    if(ofRandomuf() > 0.995) {
+      flickerDeadTrees = ofRandom(40, 80);
+    }
+  }
+
 }
 
 //--------------------------------------------------------------
@@ -153,9 +180,18 @@ void ofApp::draw(){
   sun.show();
 
   if (doTrees) {
-    for (int i = 0; i < deadTrees.size(); i++) {
-      deadTrees[i].show(font, totalTime);
+
+    deadTreesFbo.begin();
+    ofSetColor(0, 30);
+    ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
+    if(showDeadTrees) {
+      for (int i = 0; i < deadTrees.size(); i++) {
+        deadTrees[i].show(font, totalTime);
+      }
     }
+    deadTreesFbo.end();
+    ofSetColor(255, 255);
+    deadTreesFbo.draw(0, 0);
 
     for (int i = 0; i < trees.size(); i++) {
       trees[i].show(font, totalTime);
@@ -411,4 +447,17 @@ void ofApp::parseSerialData() {
 
   currentMessage.str("");
   currentMessage.clear();
+}
+
+void ofApp::makeNewTree() {
+  trees[0].killTree();
+  deadTrees.push_back(trees[0]);
+  trees.clear();
+  int x = ofGetWidth()*0.5 + ofRandom(ofGetWidth()*-0.3, ofGetWidth()*0.3);
+  Tree newTree = Tree(glm::vec2(x, ofGetHeight()));
+  newTree.visualType = static_cast<TreeVisual>(ofRandom((int)TreeVisual::LAST));
+  newTree.branchType = static_cast<BranchVisual>(ofRandom((int)BranchVisual::RANDOM));
+  trees.push_back(newTree);
+
+  simplificationThresh = 1;
 }

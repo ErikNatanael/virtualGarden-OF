@@ -32,6 +32,7 @@ class ofApp : public ofBaseApp{
 		void receiveOscMessages();
 		void readSerialData();
 		void parseSerialData();
+		void makeNewTree();
 
 		ofTrueTypeFont font;
 
@@ -51,6 +52,9 @@ class ofApp : public ofBaseApp{
 		bool doTrees = true;
 		bool doRoses = false;
 		bool pause = false;
+		bool showDeadTrees = true;
+
+		ofFbo deadTreesFbo;
 
 		glm::vec2 wind;
 
@@ -69,6 +73,7 @@ class ofApp : public ofBaseApp{
 
 		float resetTreeTime = 0;
 		float lastTreeReset = 0;
+		float simplificationThresh = 1;
 
 		ofxPlotter plotter;
 
