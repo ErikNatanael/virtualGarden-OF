@@ -65,7 +65,7 @@ void ofApp::update(){
     trees[0].killTree();
     deadTrees.push_back(trees[0]);
     trees.clear();
-    int x = ofGetWidth()*0.5 + ofRandom(ofGetWidth()*-0.1, ofGetWidth()*0.1);
+    int x = ofGetWidth()*0.5 + ofRandom(ofGetWidth()*-0.3, ofGetWidth()*0.3);
     Tree newTree = Tree(glm::vec2(x, ofGetHeight()));
     newTree.visualType = static_cast<TreeVisual>(ofRandom((int)TreeVisual::LAST));
     newTree.branchType = static_cast<BranchVisual>(ofRandom((int)BranchVisual::RANDOM));

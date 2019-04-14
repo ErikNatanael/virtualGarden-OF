@@ -79,7 +79,9 @@ public:
     growthSpeed = glm::vec2(ofRandom(20, 35), ofRandom(10, 20));
     energy = branchEnergyCost * 200;
     maxEnergy = energy * 1.5;
+
     treeBrightness = ofRandom(200, 255);
+    passiveEnergyGain = pow(ofRandomuf(), 2)*100 + 5;
 
     startPointsSpawned = false;
 
