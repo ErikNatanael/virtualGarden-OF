@@ -28,7 +28,10 @@ void ofApp::setup(){
   deadTreesFbo.begin();
   ofBackground(0, 0);
   deadTreesFbo.end();
-  //deadTreesCanvasFbo.allocate(ofGetWidth(), ofGetHeight());
+  deadTreesCanvasFbo.allocate(ofGetWidth(), ofGetHeight());
+  deadTreesCanvasFbo.begin();
+  ofBackground(0, 0);
+  deadTreesCanvasFbo.end();
 
   oscReceiver.setup(7771);
   motionTrackingValues = vector<glm::vec2>(motionTrackingPoints);
@@ -221,11 +224,17 @@ void ofApp::draw(){
     // deadTreesCanvasFbo.draw(0, 0);
 
     // optimised version (not keeping the old trees)
+    deadTreesCanvasFbo.begin();
+    ofSetColor(0, 30);
+    ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
     ofPushMatrix();
     if(ofRandomuf() > 0.9) ofTranslate(pow(ofRandomuf(), 3)*14, ofRandomf()*1);
-    ofSetColor(255, 255);
+    ofSetColor(255, 200);
     deadTreesFbo.draw(0, 0);
     ofPopMatrix();
+    deadTreesCanvasFbo.end();
+    ofSetColor(255, 255);
+    deadTreesCanvasFbo.draw(0, 0);
 
     for (int i = 0; i < trees.size(); i++) {
       trees[i].show(font, totalTime);
