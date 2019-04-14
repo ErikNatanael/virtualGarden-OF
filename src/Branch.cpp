@@ -233,7 +233,7 @@ ofColor Branch::calculateBranchColor() {
     r = thickness*7;
     g = 100 - thickness*5 - branchSpecific*50;
     b = (1 - (hp/maxHp)) * 255;
-    a = 100 + thickness*15;
+    a = 255; //100 + thickness*15;
   } else if (visualType == BranchVisual::GREEN) {
     // light on dark
     float bright = ofClamp(255 - thickness*7, 10, 255);
@@ -242,9 +242,9 @@ ofColor Branch::calculateBranchColor() {
     b = bright ;
     a = 255;
   } else {
-    r = branchSpecific * 55.0;
+    r = branchSpecific * 155.0;
     g = 150;
-    b = 150 + ofRandom(100);
+    b = 50 + ofRandom(100);
     a = 255;
   }
 
