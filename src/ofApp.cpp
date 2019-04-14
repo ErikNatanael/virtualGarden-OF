@@ -278,15 +278,15 @@ void ofApp::draw(){
     string numLeaves = "leaves: " + to_string(nl);
     font.drawString(numLeaves, 10, 120);
 
-    int nr = 0;
-    for (RoseBush& t : roseBushes) nr += t.roses.size();
-    string numRoses = "roses: " + to_string(nr);
-    font.drawString(numRoses, 10, 150);
-
-    int nlb = 0;
-    for (auto& t : trees) nlb += t.looseBranches.size();
-    string numLooseBranches = "loose branches: " + to_string(nlb);
-    font.drawString(numLooseBranches, 10, 180);
+    // int nr = 0;
+    // for (RoseBush& t : roseBushes) nr += t.roses.size();
+    // string numRoses = "roses: " + to_string(nr);
+    // font.drawString(numRoses, 10, 150);
+    //
+    // int nlb = 0;
+    // for (auto& t : trees) nlb += t.looseBranches.size();
+    // string numLooseBranches = "loose branches: " + to_string(nlb);
+    // font.drawString(numLooseBranches, 10, 180);
 
     string str;
     str = "humidity:     " + to_string_with_precision(humidity, 1);
