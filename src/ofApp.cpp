@@ -160,7 +160,7 @@ void ofApp::update(){
     }
     flickerOverlay--;
   } else {
-    if(ofRandomuf() > 0.998) {
+    if(ofRandomuf() > 0.992) {
       flickerOverlay = ofRandom(20, 40);
     }
   }
