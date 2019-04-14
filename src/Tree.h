@@ -58,6 +58,7 @@ public:
   float treeBrightness = 255;
 
   bool doLeaves = true;
+  bool doLooseBranches = false;
 
   ofFbo fbo;
   int redrawCounter = 0;
@@ -324,9 +325,11 @@ public:
           branches[i]->show(branches[i]->calculateBranchColor(), totalTime, redraw);
       }
 
-      for (int i = 0; i < looseBranches.size(); i++) {
+      if(doLooseBranches) {
+        for (int i = 0; i < looseBranches.size(); i++) {
 
-        looseBranches[i]->show(ofColor(0), totalTime);
+          looseBranches[i]->show(ofColor(0), totalTime);
+        }
       }
 
       // branch heatmap (shows where the most amount of branches are)
@@ -461,7 +464,7 @@ public:
       if(b->isDead) {
         vector<branch_ptr> killedBranches;
         b->killBranch(killedBranches);
-        looseBranches.insert(looseBranches.end(), killedBranches.begin(), killedBranches.end());
+        if(doLooseBranches) looseBranches.insert(looseBranches.end(), killedBranches.begin(), killedBranches.end());
       }
     }
     branches.erase(
@@ -473,18 +476,20 @@ public:
       branches.end()
     );
     // update the loose branches (dead branches)
-    for (int i = looseBranches.size()-1; i >= 0; i--) {
-      looseBranches[i]->update(dt);
-      looseBranches[i]->deadStartPos += glm::vec2(0, -1);
+    if(doLooseBranches) {
+      for (int i = looseBranches.size()-1; i >= 0; i--) {
+        looseBranches[i]->update(dt);
+        looseBranches[i]->deadStartPos += glm::vec2(0, -1);
+      }
+      looseBranches.erase(
+        std::remove_if(
+            looseBranches.begin(),
+            looseBranches.end(),
+            [](branch_ptr const & p) { return p->deadStartPos.y < -100; }
+        ),
+        looseBranches.end()
+      );
     }
-    looseBranches.erase(
-      std::remove_if(
-          looseBranches.begin(),
-          looseBranches.end(),
-          [](branch_ptr const & p) { return p->deadStartPos.y < -100; }
-      ),
-      looseBranches.end()
-    );
 
     // fill up the root node and let it propagate through the tree
     float energySpent = root->fillHP(energy);
