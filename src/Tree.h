@@ -152,6 +152,11 @@ public:
       branch_ptr newBranch = currentBranch->next(); // create new branch
 
       currentBranch = newBranch;
+      if(branchType == BranchVisual::RANDOM) {
+        newBranch->visualType = static_cast<BranchVisual>(ofRandom((int)BranchVisual::RANDOM - 1));
+      } else {
+        newBranch->visualType = branchType;
+      }
       branches.push_back(newBranch);
     }
     //}
