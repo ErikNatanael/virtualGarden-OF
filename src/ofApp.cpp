@@ -158,18 +158,22 @@ void ofApp::update(){
     }
   }
 
-  static int flickerDeadTrees = 0;
-  if(flickerDeadTrees > 0) {
-    if(ofRandomuf() > 0.6) {
-      showDeadTrees = !showDeadTrees;
-    }
-    flickerDeadTrees--;
-  } else {
-    showDeadTrees = false;
-    if(ofRandomuf() > 0.995) {
-      flickerDeadTrees = ofRandom(40, 80);
-    }
+  // static int flickerDeadTrees = 0;
+  // if(flickerDeadTrees > 0) {
+  //   if(ofRandomuf() > 0.6) {
+  //     showDeadTrees = !showDeadTrees;
+  //   }
+  //   flickerDeadTrees--;
+  // } else {
+  //   showDeadTrees = false;
+  //   if(ofRandomuf() > 0.995) {
+  //     flickerDeadTrees = ofRandom(40, 80);
+  //   }
+  // }
+  if(ofRandomuf() > 0.995) {
+    showDeadTrees = !showDeadTrees;
   }
+
 
 }
 
@@ -177,6 +181,14 @@ void ofApp::update(){
 void ofApp::draw(){
   //ofBackground(31+sun.strength*1., 31+sun.strength*1.1, 31+sun.strength*1.4);
   ofBackground(0);
+  ofPushMatrix();
+  if(overlay) {
+    // offset by distance to center to center the current tree
+    int center = ofGetWidth()/2;
+    int xoffset = center - trees[0].root->pos.x;
+    ofTranslate(xoffset, 0);
+  }
+
   sun.show();
 
   if (doTrees) {
@@ -185,12 +197,15 @@ void ofApp::draw(){
     ofSetColor(0, 30);
     ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
     if(showDeadTrees) {
+      ofPushMatrix();
+      if(ofRandomuf() > 0.9) ofTranslate(pow(ofRandomuf(), 3)*14, ofRandomf()*2);
       for (int i = 0; i < deadTrees.size(); i++) {
         deadTrees[i].show(font, totalTime);
       }
+      ofPopMatrix();
     }
     deadTreesFbo.end();
-    ofSetColor(255, 255);
+    ofSetColor(255, 200);
     deadTreesFbo.draw(0, 0);
 
     for (int i = 0; i < trees.size(); i++) {
@@ -209,6 +224,8 @@ void ofApp::draw(){
   for(auto& v : motionTrackingValues) {
     ofDrawEllipse(v.x, v.y, 20, 20);
   }
+
+  ofPopMatrix();
 
   if (overlay) {
     string fps = "fps: " + to_string_with_precision(ofGetFrameRate(), 1);
@@ -260,7 +277,6 @@ void ofApp::draw(){
     plotter.drawCustomPlot("energyHistory", 0, ofGetHeight()*0.6, ofGetWidth()*0.4, ofGetHeight()*0.2);
     plotter.drawCustomPlot("pointsHistory", ofGetWidth()*0.6, ofGetHeight()*0.6, ofGetWidth()*0.4, ofGetHeight()*0.2);
   }
-
 }
 
 //--------------------------------------------------------------
@@ -453,7 +469,7 @@ void ofApp::makeNewTree() {
   trees[0].killTree();
   deadTrees.push_back(trees[0]);
   trees.clear();
-  int x = ofGetWidth()*0.5 + ofRandom(ofGetWidth()*-0.3, ofGetWidth()*0.3);
+  int x = ofGetWidth()*0.5 + ofRandom(ofGetWidth()*-0.4, ofGetWidth()*0.4);
   Tree newTree = Tree(glm::vec2(x, ofGetHeight()));
   newTree.visualType = static_cast<TreeVisual>(ofRandom((int)TreeVisual::LAST));
   newTree.branchType = static_cast<BranchVisual>(ofRandom((int)BranchVisual::RANDOM));
