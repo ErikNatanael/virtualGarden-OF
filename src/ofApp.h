@@ -38,6 +38,7 @@ class ofApp : public ofBaseApp{
 
 		vector<Tree> trees;
 		vector<Tree> deadTrees; // dead trees are sometimes shown, but never updated
+		ofFbo deadTreesFbo;
 
 		float totalTime = 0;
 		float dt = 0.01;
@@ -54,7 +55,7 @@ class ofApp : public ofBaseApp{
 		bool pause = false;
 		bool showDeadTrees = true;
 
-		ofFbo deadTreesFbo;
+		ofFbo deadTreesCanvasFbo;
 
 		glm::vec2 wind;
 

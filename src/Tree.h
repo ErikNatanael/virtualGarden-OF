@@ -54,7 +54,7 @@ public:
   bool trunkFinished = false;
   bool startPointsSpawned;
   bool isDead = false;
-  float deadAlpha = 150;
+  float deadAlpha = 210;
   float treeBrightness = 255;
 
   bool doLeaves = true;

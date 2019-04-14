@@ -25,6 +25,10 @@ void ofApp::setup(){
   font.load("SpaceMono-Regular.ttf", 20);
 
   deadTreesFbo.allocate(ofGetWidth(), ofGetHeight());
+  deadTreesFbo.begin();
+  ofBackground(0, 0);
+  deadTreesFbo.end();
+  //deadTreesCanvasFbo.allocate(ofGetWidth(), ofGetHeight());
 
   oscReceiver.setup(7771);
   motionTrackingValues = vector<glm::vec2>(motionTrackingPoints);
@@ -173,8 +177,15 @@ void ofApp::update(){
   if(ofRandomuf() > 0.995) {
     showDeadTrees = !showDeadTrees;
   }
+  showDeadTrees = true;
 
-
+  // make dead trees fade on their own fbo
+  if(ofGetFrameNum() % 90 == 0) {
+    deadTreesFbo.begin();
+    ofSetColor(0, 8);
+    ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
+    deadTreesFbo.end();
+  }
 }
 
 //--------------------------------------------------------------
@@ -193,20 +204,28 @@ void ofApp::draw(){
 
   if (doTrees) {
 
-    deadTreesFbo.begin();
-    ofSetColor(0, 30);
-    ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
-    if(showDeadTrees) {
-      ofPushMatrix();
-      if(ofRandomuf() > 0.9) ofTranslate(pow(ofRandomuf(), 3)*14, ofRandomf()*2);
-      for (int i = 0; i < deadTrees.size(); i++) {
-        deadTrees[i].show(font, totalTime);
-      }
-      ofPopMatrix();
-    }
-    deadTreesFbo.end();
-    ofSetColor(255, 200);
+    // fancier version drawing every dead tree by themselves
+    // deadTreesCanvasFbo.begin();
+    // ofSetColor(0, 30);
+    // ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
+    // if(showDeadTrees) {
+    //   ofPushMatrix();
+    //   if(ofRandomuf() > 0.9) ofTranslate(pow(ofRandomuf(), 3)*14, ofRandomf()*2);
+    //   for (int i = 0; i < deadTrees.size(); i++) {
+    //     deadTrees[i].show(font, totalTime);
+    //   }
+    //   ofPopMatrix();
+    // }
+    // deadTreesCanvasFbo.end();
+    // ofSetColor(255, 200);
+    // deadTreesCanvasFbo.draw(0, 0);
+
+    // optimised version (not keeping the old trees)
+    ofPushMatrix();
+    if(ofRandomuf() > 0.9) ofTranslate(pow(ofRandomuf(), 3)*14, ofRandomf()*2);
+    ofSetColor(255, 255);
     deadTreesFbo.draw(0, 0);
+    ofPopMatrix();
 
     for (int i = 0; i < trees.size(); i++) {
       trees[i].show(font, totalTime);
@@ -467,7 +486,10 @@ void ofApp::parseSerialData() {
 
 void ofApp::makeNewTree() {
   trees[0].killTree();
-  deadTrees.push_back(trees[0]);
+  deadTreesFbo.begin();
+  trees[0].show(font, totalTime);
+  deadTreesFbo.end();
+  //deadTrees.push_back(trees[0]);
   trees.clear();
   int x = ofGetWidth()*0.5 + ofRandom(ofGetWidth()*-0.4, ofGetWidth()*0.4);
   Tree newTree = Tree(glm::vec2(x, ofGetHeight()));
