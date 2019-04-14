@@ -1,5 +1,6 @@
 #include "ofApp.h"
 #include "globals.h"
+#include "ofxPlotter.h"
 
 #include <sstream>
 
@@ -43,6 +44,11 @@ void ofApp::setup(){
 
   sun = Sun(glm::vec2(ofGetWidth()/2, 0), 10.);
 
+  plotter["energy"] << 0;
+  plotter["points"] << 0;
+  plotter["energyHistory"] << 0;
+  plotter["pointsHistory"] << 0;
+
 }
 
 //--------------------------------------------------------------
@@ -56,6 +62,8 @@ void ofApp::update(){
   if(currentTime - lastTreeReset > resetTreeTime) {
     lastTreeReset = currentTime;
     resetTreeTime = ofRandom(2, 30);
+    trees[0].killTree();
+    deadTrees.push_back(trees[0]);
     trees.clear();
     int x = ofGetWidth()*0.5 + ofRandom(ofGetWidth()*-0.1, ofGetWidth()*0.1);
     Tree newTree = Tree(glm::vec2(x, ofGetHeight()));
@@ -89,6 +97,33 @@ void ofApp::update(){
       if (grow && !pause) trees[i].grow();
       if(!pause)trees[i].update(dt, sun);
     }
+
+    // add plotting data
+    plotter["energy"] << trees[0].energy;
+    plotter["points"] << float(trees[0].growthPoints.size());
+    const int AVERAGE_FRAMES = 30;
+    static float averageEnergy = 0;
+    static float averagePoints = 0;
+    averageEnergy += trees[0].energy;
+    averagePoints += float(trees[0].growthPoints.size());
+    if(ofGetFrameNum() % AVERAGE_FRAMES == 0) {
+      averageEnergy /= AVERAGE_FRAMES;
+      averagePoints /= AVERAGE_FRAMES;
+      plotter["energyHistory"] << averageEnergy;
+      plotter["pointsHistory"] << averagePoints;
+      averagePoints = 0;
+      averageEnergy = 0;
+    } else {
+      plotter.history["energyHistory"].erase(plotter.history["energyHistory"].end()-1);
+      plotter.history["pointsHistory"].erase(plotter.history["pointsHistory"].end()-1);
+    }
+
+    for(int i = deadTrees.size()-1; i >= 0; i--) {
+      deadTrees[i].deadAlpha -= 0.01; // should reach 0 alpha after ca 5 min at 60 fps
+      if(deadTrees[i].deadAlpha <= 0) {
+        deadTrees.erase(deadTrees.begin() + i);
+      }
+    }
   }
 
 
@@ -118,6 +153,10 @@ void ofApp::draw(){
   sun.show();
 
   if (doTrees) {
+    for (int i = 0; i < deadTrees.size(); i++) {
+      deadTrees[i].show(font, totalTime);
+    }
+
     for (int i = 0; i < trees.size(); i++) {
       trees[i].show(font, totalTime);
     }
@@ -179,6 +218,11 @@ void ofApp::draw(){
     font.drawString(str, 10, 330);
     str = "fluorescence: " + to_string_with_precision(fluorescence, 1);
     font.drawString(str, 10, 360);
+
+    plotter.drawCustomPlot("energy", 0, ofGetHeight()*0.8, ofGetWidth()*0.4, ofGetHeight()*0.2);
+    plotter.drawCustomPlot("points", ofGetWidth()*0.6, ofGetHeight()*0.8, ofGetWidth()*0.4, ofGetHeight()*0.2);
+    plotter.drawCustomPlot("energyHistory", 0, ofGetHeight()*0.6, ofGetWidth()*0.4, ofGetHeight()*0.2);
+    plotter.drawCustomPlot("pointsHistory", ofGetWidth()*0.6, ofGetHeight()*0.6, ofGetWidth()*0.4, ofGetHeight()*0.2);
   }
 
 }

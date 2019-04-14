@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxOsc.h"
+#include "ofxPlotter.h"
 
 #include "Tree.h"
 #include "Rose.h"
@@ -35,6 +36,7 @@ class ofApp : public ofBaseApp{
 		ofTrueTypeFont font;
 
 		vector<Tree> trees;
+		vector<Tree> deadTrees; // dead trees are sometimes shown, but never updated
 
 		float totalTime = 0;
 		float dt = 0.01;
@@ -67,5 +69,7 @@ class ofApp : public ofBaseApp{
 
 		float resetTreeTime = 0;
 		float lastTreeReset = 0;
+
+		ofxPlotter plotter;
 
 };

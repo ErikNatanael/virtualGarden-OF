@@ -12,6 +12,18 @@ Project{
         name: { return FileInfo.baseName(sourceDirectory) }
 
         files: [
+            'src/Branch.cpp',
+            'src/Branch.h',
+            'src/GrowthPoint.cpp',
+            'src/GrowthPoint.h',
+            'src/Leaf.cpp',
+            'src/Leaf.h',
+            'src/Plotter.h',
+            'src/Rose.h',
+            'src/RoseBush.h',
+            'src/Sun.h',
+            'src/Tree.h',
+            'src/globals.h',
             'src/main.cpp',
             'src/ofApp.cpp',
             'src/ofApp.h',
@@ -19,6 +31,7 @@ Project{
 
         of.addons: [
             'ofxOsc',
+            'ofxPlotter',
         ]
 
         of.addons: [

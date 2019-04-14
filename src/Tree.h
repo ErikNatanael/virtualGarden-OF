@@ -53,6 +53,9 @@ public:
 
   bool trunkFinished = false;
   bool startPointsSpawned;
+  bool isDead = false;
+  float deadAlpha = 150;
+  float treeBrightness = 255;
 
   bool doLeaves = true;
 
@@ -76,6 +79,7 @@ public:
     growthSpeed = glm::vec2(ofRandom(20, 35), ofRandom(10, 20));
     energy = branchEnergyCost * 200;
     maxEnergy = energy * 1.5;
+    treeBrightness = ofRandom(200, 255);
 
     startPointsSpawned = false;
 
@@ -295,47 +299,53 @@ public:
   }
 
   void show(ofTrueTypeFont font, float totalTime) {
-    redrawCounter++;
-    bool redraw = false;
-    if(redrawCounter >= framesBetweenRedraw) {
-      redraw = true;
-      redrawCounter = 0;
+    if(!isDead) {
+      redrawCounter++;
+      bool redraw = false;
+      if(redrawCounter >= framesBetweenRedraw) {
+        redraw = true;
+        redrawCounter = 0;
+      }
+
+      fbo.begin();
+      if(redraw) ofBackground(0, 0);
+
+      for (int i = 0; i < branches.size(); i++) {
+        if(visualType == TreeVisual::DIGITAL)
+          branches[i]->show(branchColorByIndex(i), totalTime);
+        else
+          branches[i]->show(branches[i]->calculateBranchColor(), totalTime, redraw);
+      }
+
+      for (int i = 0; i < looseBranches.size(); i++) {
+
+        looseBranches[i]->show(ofColor(0), totalTime);
+      }
+
+      // branch heatmap (shows where the most amount of branches are)
+      #ifdef DEBUG
+      ofSetColor(255, 1, 2, 2);
+      for(branch_ptr& b : branches) {
+        ofDrawEllipse(b->pos.x, b->pos.y, 10, 10);
+      }
+      #endif
+
+      fbo.end();
+      if(visualType == TreeVisual::DIGITAL) {
+        ofSetColor(255, 255);
+      }
     }
-
-    fbo.begin();
-    if(redraw) ofBackground(0, 0);
-
-    for (int i = 0; i < branches.size(); i++) {
-      if(visualType == TreeVisual::DIGITAL)
-        branches[i]->show(branchColorByIndex(i), totalTime);
-      else
-        branches[i]->show(branches[i]->calculateBranchColor(), totalTime, redraw);
-    }
-
-    for (int i = 0; i < looseBranches.size(); i++) {
-
-      looseBranches[i]->show(ofColor(0), totalTime);
-    }
-
-    // branch heatmap (shows where the most amount of branches are)
-    #ifdef DEBUG
-    ofSetColor(255, 1, 2, 2);
-    for(branch_ptr& b : branches) {
-      ofDrawEllipse(b->pos.x, b->pos.y, 10, 10);
-    }
-    #endif
-
-    fbo.end();
-    if(visualType == TreeVisual::DIGITAL) {
-      ofSetColor(255, 255);
-    }
+    if(!isDead) ofSetColor(treeBrightness, 255);
+    else        ofSetColor(treeBrightness, deadAlpha);
     fbo.draw(0, 0);
 
-    for(branch_ptr& b : branches) {
-      b->drawLeaves(totalTime);
+    if(!isDead) {
+      for(branch_ptr& b : branches) {
+        b->drawLeaves(totalTime);
+      }
     }
 
-    if (overlay) {
+    if (overlay && !isDead) {
       string eg = "energy: " + to_string(int(energy));
       ofSetColor(255);
       font.drawString(eg, root->pos.x-100, ofGetHeight()-(h+hOffset));
@@ -409,6 +419,10 @@ public:
     for(branch_ptr b : branches) {
       b->pos += move;
     }
+  }
+
+  void killTree() {
+    isDead = true;
   }
 
 
