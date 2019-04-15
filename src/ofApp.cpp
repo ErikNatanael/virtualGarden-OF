@@ -206,7 +206,9 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
   //ofBackground(31+sun.strength*1., 31+sun.strength*1.1, 31+sun.strength*1.4);
-  ofBackground(0);
+  //ofBackground(0);
+  ofSetColor(255*(temperature1/30.0), 0, (float(humidity)/70) * 255, 100);
+  ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
   ofPushMatrix();
   if(overlay) {
     // offset by distance to center to center the current tree

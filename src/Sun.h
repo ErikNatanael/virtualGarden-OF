@@ -32,7 +32,7 @@ public:
   void show() {
     //noStroke();
     phase = pow(phase, 2)*.5 + 0.5;
-    ofSetColor(255*phase, (80+strength*1.5) * phase, (65 + strength) * phase); // more blue = brighter yellow
+    ofSetColor(255, (80+strength*1.5) * phase, (65 + strength) * phase); // more blue = brighter yellow
     float size = ofGetWidth() - (strength* (ofGetWidth()/147.0));
     ofDrawEllipse(pos.x, pos.y, size, size);
   }
