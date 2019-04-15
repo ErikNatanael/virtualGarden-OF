@@ -30,7 +30,6 @@ void Leaf::drawLeafShape() {
   ofVertex(0, 0);
 
   ofEndShape();
-
 }
 
 void Leaf::update(float dt, glm::vec2 parentPos) {

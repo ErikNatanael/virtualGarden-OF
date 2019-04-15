@@ -71,34 +71,35 @@ void ofApp::update(){
   double currentTime = ofGetElapsedTimef();
   dt = (float)(currentTime - lastTime);
   lastTime = currentTime;
-  totalTime += dt;
+  if(!pause) totalTime += dt;
 
   if(currentTime - lastTreeReset > resetTreeTime) {
     lastTreeReset = currentTime;
-    resetTreeTime = ofRandom(2, 30);
+    resetTreeTime = ofRandom(4, 40);
     makeNewTree();
   }
 
   receiveOscMessages();
   readSerialData();
 
-  // simplify tree if frameRate drops too low
-  static double lastTimeSimplification = 0;
-  if(ofGetFrameRate() < 20.0 && ((currentTime - lastTimeSimplification) > 5.) ) {
-
-    if(simplificationThresh < 6) {
-      for(auto& t : trees) {
-        t.simplifyTree(simplificationThresh);
-      }
-      simplificationThresh += 0.5;
-    } else {
-      // make a new tree
-      makeNewTree();
-    }
-    lastTimeSimplification = currentTime;
-  }
-
   if(!pause) {
+    // simplify tree if frameRate drops too low
+    static double lastTimeSimplification = 0;
+    if(ofGetFrameRate() < 20.0 && ((currentTime - lastTimeSimplification) > 5.) ) {
+
+      if(simplificationThresh < 6) {
+        for(auto& t : trees) {
+          t.simplifyTree(simplificationThresh);
+        }
+        simplificationThresh += 0.5;
+      } else {
+        // make a new tree
+        makeNewTree();
+      }
+      lastTimeSimplification = currentTime;
+    }
+
+    // update the sun
     light = 0;
     if(light != 0) sun.update(light);
     else           sun.update(-1);
@@ -112,37 +113,42 @@ void ofApp::update(){
     }
 
     // add plotting data
-    plotter["energy"] << trees[0].energy;
-    plotter["points"] << float(trees[0].growthPoints.size());
-    plotter["branches"] << float(trees[0].branches.size());
-    const int AVERAGE_FRAMES = 30;
-    static float averageEnergy = 0;
-    static float averagePoints = 0;
-    static float averageBranches = 0;
-    averageEnergy += trees[0].energy;
-    averagePoints += float(trees[0].growthPoints.size());
-    averageBranches += float(trees[0].branches.size());
-    if(ofGetFrameNum() % AVERAGE_FRAMES == 0) {
-      averageEnergy /= AVERAGE_FRAMES;
-      averagePoints /= AVERAGE_FRAMES;
-      averageBranches /= AVERAGE_FRAMES;
-      plotter["energyHistory"] << averageEnergy;
-      plotter["pointsHistory"] << averagePoints;
-      plotter["branchesHistory"] << averageBranches;
-      averagePoints = 0;
-      averageEnergy = 0;
-      averageBranches = 0;
+    static long framesPassed = 0;
+    if(!pause) {
+      plotter["energy"] << trees[0].energy;
+      plotter["points"] << float(trees[0].growthPoints.size());
+      plotter["branches"] << float(trees[0].branches.size());
+      const int AVERAGE_FRAMES = 30;
+      static float averageEnergy = 0;
+      static float averagePoints = 0;
+      static float averageBranches = 0;
+      averageEnergy += trees[0].energy;
+      averagePoints += float(trees[0].growthPoints.size());
+      averageBranches += float(trees[0].branches.size());
+      if(framesPassed % AVERAGE_FRAMES == 0) {
+        averageEnergy /= AVERAGE_FRAMES;
+        averagePoints /= AVERAGE_FRAMES;
+        averageBranches /= AVERAGE_FRAMES;
+        plotter["energyHistory"] << averageEnergy;
+        plotter["pointsHistory"] << averagePoints;
+        plotter["branchesHistory"] << averageBranches;
+        averagePoints = 0;
+        averageEnergy = 0;
+        averageBranches = 0;
+      } else {
+        plotter.history["energyHistory"].erase(plotter.history["energyHistory"].end()-1);
+        plotter.history["pointsHistory"].erase(plotter.history["pointsHistory"].end()-1);
+        plotter.history["branchesHistory"].erase(plotter.history["branchesHistory"].end()-1);
+      }
+
+      framesPassed++;
     } else {
       plotter.history["energyHistory"].erase(plotter.history["energyHistory"].end()-1);
       plotter.history["pointsHistory"].erase(plotter.history["pointsHistory"].end()-1);
       plotter.history["branchesHistory"].erase(plotter.history["branchesHistory"].end()-1);
-    }
-
-    for(int i = deadTrees.size()-1; i >= 0; i--) {
-      deadTrees[i].deadAlpha -= 0.01; // should reach 0 alpha after ca 5 min at 60 fps
-      if(deadTrees[i].deadAlpha <= 0) {
-        deadTrees.erase(deadTrees.begin() + i);
-      }
+      plotter.history["energy"].erase(plotter.history["energy"].end()-1);
+      plotter.history["points"].erase(plotter.history["points"].end()-1);
+      plotter.history["branches"].erase(plotter.history["branches"].end()-1);
     }
   }
 
@@ -157,7 +163,7 @@ void ofApp::update(){
     }
   }*/
 
-  if (doRoses) {
+  if (doRoses && !pause) {
     for (int i = 0; i < roseBushes.size(); i++) {
       if(!pause) if (grow) roseBushes[i].grow();
       if(!pause) roseBushes[i].update(dt, sun);
@@ -166,15 +172,32 @@ void ofApp::update(){
 
   // flickering
 
-  static int flickerOverlay = 0;
-  if(flickerOverlay > 0) {
+  // static int flickerOverlay = 0;
+  // if(flickerOverlay > 0) {
+  //   if(ofRandomuf() > 0.9) {
+  //     overlay = !overlay;
+  //   }
+  //   flickerOverlay--;
+  // } else {
+  //   if(ofRandomuf() > 0.994) {
+  //     flickerOverlay = ofRandom(10, 20);
+  //   }
+  // }
+
+  static float overlayTime = 0;
+  if(overlayTime > 0) {
+    pause = true;
     if(ofRandomuf() > 0.9) {
-      overlay = !overlay;
+      pause = !pause;
     }
-    flickerOverlay--;
+    overlayTime -= dt;
   } else {
-    if(ofRandomuf() > 0.994) {
-      flickerOverlay = ofRandom(10, 20);
+    pause = false;
+    overlay = false;
+    if(ofRandomuf() > 0.998) {
+      overlayTime = ofRandom(1.0, 4.0);
+      overlay = true;
+      pause = true;
     }
   }
 
@@ -196,7 +219,7 @@ void ofApp::update(){
   showDeadTrees = true;
 
   // make dead trees fade on their own fbo
-  if(ofGetFrameNum() % 150 == 0) {
+  if(ofGetFrameNum() % 150 == 0 && !pause) {
     deadTreesFbo.begin();
     ofSetColor(0, 8);
     ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
