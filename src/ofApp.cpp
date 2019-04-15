@@ -188,7 +188,7 @@ void ofApp::update(){
   static float nextOverlay = 20;
   if(overlayTime > 0) {
     pause = true;
-    if(ofRandomuf() > 0.8 + overlayTime*0.1) {
+    if(ofRandomuf() > 0.7 + overlayTime*0.1) {
       pause = !pause;
     }
     overlayTime -= dt;
