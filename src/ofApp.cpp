@@ -100,9 +100,10 @@ void ofApp::update(){
     }
 
     // update the sun
-    light = 0;
-    if(light != 0) sun.update(light);
-    else           sun.update(-1);
+    //light = 0;
+    // if(light != 0) sun.update(light);
+    // else           sun.update(-1);
+    sun.update(-1);
   }
 
   if (doTrees) {
