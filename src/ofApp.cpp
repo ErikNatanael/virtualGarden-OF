@@ -168,13 +168,13 @@ void ofApp::update(){
 
   static int flickerOverlay = 0;
   if(flickerOverlay > 0) {
-    if(ofRandomuf() > 0.8) {
+    if(ofRandomuf() > 0.9) {
       overlay = !overlay;
     }
     flickerOverlay--;
   } else {
-    if(ofRandomuf() > 0.992) {
-      flickerOverlay = ofRandom(20, 40);
+    if(ofRandomuf() > 0.994) {
+      flickerOverlay = ofRandom(10, 20);
     }
   }
 
