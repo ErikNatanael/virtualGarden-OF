@@ -438,7 +438,7 @@ void ofApp::receiveOscMessages() {
   while(oscReceiver.hasWaitingMessages()) {
     ofxOscMessage m;
     oscReceiver.getNextMessage(m);
-    cout << "address: " << m.getAddress() << " message: " << m << endl;
+    //cout << "address: " << m.getAddress() << " message: " << m << endl;
 
     // parse the message
     if (m.getAddress() == "/coords"  )
