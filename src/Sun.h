@@ -17,7 +17,7 @@ public:
     float maxVal = ofGetHeight() - 100;
     float minVal = ofGetHeight()*-.55;
     if(strength_ == -1) {
-      phase = sin(ofGetElapsedTimef()*0.1);
+      phase = sin(ofGetElapsedTimef()*0.03);
       strength = phase*50+60;
       phase = phase*0.5+.5;
       pos = glm::vec2(pos.x, ofGetHeight() - (phase*(maxVal-minVal)+minVal));

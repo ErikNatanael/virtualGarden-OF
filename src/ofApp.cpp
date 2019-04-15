@@ -99,6 +99,7 @@ void ofApp::update(){
   }
 
   if(!pause) {
+    light = 0;
     if(light != 0) sun.update(light);
     else           sun.update(-1);
   }
