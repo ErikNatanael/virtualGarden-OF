@@ -238,12 +238,12 @@ ofColor Branch::calculateBranchColor() {
     // light on dark
     float bright = ofClamp(255 - thickness*7, 10, 255);
     r = bright + (1 - (hp/maxHp)) * 150;
-    g = bright + branchSpecific*50;
-    b = bright ;
+    g = bright - 50 + branchSpecific*50;
+    b = 255 - bright;
     a = 255;
   } else {
-    r = 100 + branchSpecific * 155.0;;
-    g = 150;
+    r = 100 + branchSpecific * 155.0;
+    g = 250;
     b = 50 + branchSpecific * 55.0;
     a = 255;
   }

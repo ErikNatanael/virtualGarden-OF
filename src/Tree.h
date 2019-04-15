@@ -305,7 +305,7 @@ public:
   ofColor branchColorByIndex(int i) {
     // return ofColor(i*0.2, ofClamp(i*0.2-100, 0, 255), ofClamp(i*0.2-200, 0, 255));
     // quicker progression:
-    return ofColor(i*0.4, ofClamp(i*0.4-100, 0, 255), ofClamp(i*0.4-200, 0, 255));
+    return ofColor(i*0.4 + 20, ofClamp(i*0.4-100, 0, 255), ofClamp(i*0.4-200, 0, 255));
   }
 
   void show(ofTrueTypeFont font, float totalTime) {

@@ -206,8 +206,8 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
   //ofBackground(31+sun.strength*1., 31+sun.strength*1.1, 31+sun.strength*1.4);
-  //ofBackground(0);
-  ofBackground(0, 0, (float(humidity)/70) * 255);
+  ofBackground(0);
+  //ofBackground(0, 0, (float(humidity)/70) * 255);
 
   ofPushMatrix();
   if(overlay) {
