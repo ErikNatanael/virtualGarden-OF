@@ -36,7 +36,7 @@ void ofApp::setup(){
   oscReceiver.setup(7771);
   motionTrackingValues = vector<glm::vec2>(motionTrackingPoints);
 
-  oscSender.setup("10.52.244.11", 7771);
+  oscSender.setup("192.168.1.102", 7771);
 
   int baud = 115200;
   serial.setup(0, baud); //open the first device and talk to it at 57600 baud
