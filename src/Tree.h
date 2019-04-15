@@ -368,7 +368,7 @@ public:
 
       // show latest branch
       branch_ptr b = branches.back();
-      ofDrawEllipse(b->pos.x, b->pos.y, 20, 20);
+      ofDrawEllipse(b->pos.x, b->pos.y, 10, 10);
     }
 
 

@@ -22,7 +22,7 @@ public:
       phase = phase*0.5+.5;
       pos = glm::vec2(pos.x, ofGetHeight() - (phase*(maxVal-minVal)+minVal));
     } else {
-      phase = strength_/200;
+      phase = ofMap(strength_, 20, 80, 0, 1);
       strength = phase*100+10;
       pos = glm::vec2(pos.x, ofGetHeight() - (phase*(maxVal-minVal)+minVal));
     }

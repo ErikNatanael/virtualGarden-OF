@@ -84,9 +84,9 @@ void ofApp::update(){
 
   // simplify tree if frameRate drops too low
   static double lastTimeSimplification = 0;
-  if(ofGetFrameRate() < 30.0 && ((currentTime - lastTimeSimplification) > 5.) ) {
+  if(ofGetFrameRate() < 20.0 && ((currentTime - lastTimeSimplification) > 5.) ) {
 
-    if(simplificationThresh < 3) {
+    if(simplificationThresh < 6) {
       for(auto& t : trees) {
         t.simplifyTree(simplificationThresh);
       }
@@ -195,7 +195,7 @@ void ofApp::update(){
   showDeadTrees = true;
 
   // make dead trees fade on their own fbo
-  if(ofGetFrameNum() % 90 == 0) {
+  if(ofGetFrameNum() % 150 == 0) {
     deadTreesFbo.begin();
     ofSetColor(0, 8);
     ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
@@ -293,27 +293,37 @@ void ofApp::draw(){
     // font.drawString(numLooseBranches, 10, 180);
 
     if(true) {
+      int yOffset = 30;
+      int yDistance = 30;
       string str;
       ofSetColor(255);
-      str = "fps:            " + to_string_with_precision(ofGetFrameRate(), 1);
-      font.drawString(str, 10, 30);
+      // str = "fps:            " + to_string_with_precision(ofGetFrameRate(), 1);
+      // font.drawString(str, 10, yOffset);
+      // yOffset += yDistance;
       str = "branches:       " + to_string(nb);
-      font.drawString(str, 10, 60);
+      font.drawString(str, 10, yOffset);
+      yOffset += yDistance;
       // str = "attraction points: " + to_string(ngp);
       // font.drawString(str, 10, 90);
       str = "leaves:         " + to_string(nl);
-      font.drawString(str, 10, 90);
+      font.drawString(str, 10, yOffset);
+      yOffset += yDistance*3;
 
       str = "humidity:       " + to_string_with_precision(humidity, 1);
-      font.drawString(str, 10, 150);
+      font.drawString(str, 10, yOffset);
+      yOffset += yDistance;
       str = "light:          " + to_string_with_precision(light, 1);
-      font.drawString(str, 10, 180);
+      font.drawString(str, 10, yOffset);
+      yOffset += yDistance;
       str = "temperature1:   " + to_string_with_precision(temperature1, 1);
-      font.drawString(str, 10, 210);
+      font.drawString(str, 10, yOffset);
+      yOffset += yDistance;
       str = "temperature2:   " + to_string_with_precision(temperature2, 1);
-      font.drawString(str, 10, 240);
+      font.drawString(str, 10, yOffset);
+      yOffset += yDistance;
       str = "fluorescence:   " + to_string_with_precision(fluorescence, 1);
-      font.drawString(str, 10, 270);
+      font.drawString(str, 10, yOffset);
+      yOffset += yDistance;
     }
 
     ofSetColor(255);
