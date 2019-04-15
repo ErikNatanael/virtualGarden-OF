@@ -185,16 +185,19 @@ void ofApp::update(){
   // }
 
   static float overlayTime = 0;
+  static float nextOverlay = 20;
   if(overlayTime > 0) {
     pause = true;
-    if(ofRandomuf() > 0.9) {
+    if(ofRandomuf() > 0.8 + overlayTime*0.1) {
       pause = !pause;
     }
     overlayTime -= dt;
   } else {
     pause = false;
     overlay = false;
-    if(ofRandomuf() > 0.998) {
+    nextOverlay -= dt;
+    if(nextOverlay < 0) {
+      nextOverlay = ofRandom(10, 20);
       overlayTime = ofRandom(1.0, 4.0);
       overlay = true;
       pause = true;
