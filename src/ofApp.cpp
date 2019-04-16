@@ -347,9 +347,9 @@ void ofApp::draw(){
       str = "temperature2:   " + to_string_with_precision(temperature2, 1);
       font.drawString(str, 10, yOffset);
       yOffset += yDistance;
-      str = "fluorescence:   " + to_string_with_precision(fluorescence, 1);
-      font.drawString(str, 10, yOffset);
-      yOffset += yDistance;
+      // str = "fluorescence:   " + to_string_with_precision(fluorescence, 1);
+      // font.drawString(str, 10, yOffset);
+      // yOffset += yDistance;
     }
 
     ofSetColor(255);
@@ -592,6 +592,18 @@ void ofApp::makeNewTree() {
   Tree newTree = Tree(glm::vec2(x, ofGetHeight()));
   newTree.visualType = static_cast<TreeVisual>(ofRandom((int)TreeVisual::LAST));
   newTree.branchType = static_cast<BranchVisual>(ofRandom((int)BranchVisual::RANDOM));
+  // Let tree and branch types depend on some sensor values
+  if(humidity < 40) {
+    newTree.visualType = TreeVisual::CROOKED;
+  } else if (humidity > 70) {
+    newTree.visualType = TreeVisual::DIGITAL;
+    newTree.branchType = BranchVisual::GREEN;
+  }
+  if(temperature1 > 18) {
+    newTree.passiveEnergyGain = pow(ofRandomuf(), 2)*temperature1*50 + ((temperature1-17)*8);
+  } else {
+    newTree.passiveEnergyGain = pow(ofRandomuf(), 2)*temperature1 + 5;
+  }
   trees.push_back(newTree);
 
   simplificationThresh = 1;

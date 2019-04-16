@@ -68,10 +68,10 @@ class ofApp : public ofBaseApp{
 		stringstream currentMessage;
 		vector<glm::vec2> motionTrackingValues;
 		int motionTrackingPoints = 20;
-		float temperature1 = 0;
-		float temperature2 = 0;
-		int humidity = 0;
-		int light = 0;
+		float temperature1 = 19;
+		float temperature2 = 19;
+		int humidity = 47;
+		int light = 50;
 		float fluorescence = 0;
 
 		float resetTreeTime = 0;
