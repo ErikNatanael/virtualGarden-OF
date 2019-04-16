@@ -531,17 +531,19 @@ void ofApp::sendOscData() {
 }
 
 void ofApp::readSerialData() {
-  while(serial.available()) {
-    char byte = serial.readByte();
-    //cout << "byte: " << byte << endl;
-    if ( byte == OF_SERIAL_NO_DATA )
-      printf("no data was read");
-    else if ( byte == OF_SERIAL_ERROR )
-      printf("an error occurred");
-    else if (byte == 13) parseSerialData();
-    else {
-      // add the byte to the current string
-      currentMessage << byte;
+  if(serial.isInitialized()) {
+    while(serial.available()) {
+      char byte = serial.readByte();
+      //cout << "byte: " << byte << endl;
+      if ( byte == OF_SERIAL_NO_DATA )
+        printf("no data was read");
+      else if ( byte == OF_SERIAL_ERROR )
+        printf("an error occurred");
+      else if (byte == 13) parseSerialData();
+      else {
+        // add the byte to the current string
+        currentMessage << byte;
+      }
     }
   }
 }
