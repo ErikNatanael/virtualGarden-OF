@@ -560,7 +560,7 @@ void ofApp::parseSerialData() {
   vector<float> values(5, -1);
   string v;
   int i = 0;
-  while(currentMessage >> v && i < 5) {
+  while(currentMessage >> v && i < 4) {
     if(is_number(v)) {
       values[i] = stoi(v);
       i++;
@@ -568,13 +568,12 @@ void ofApp::parseSerialData() {
       cout << "Error: serial message was not a number: " << v << endl;
     }
   }
-  if(i == 5) {
+  if(i == 4) {
     // all values were registered
     humidity = values[3];
     light = values[1];
     temperature1 = values[0]/2.0;
     temperature2 = values[2];
-    fluorescence = values[4];
 
     sendOscData(); // pass it on to the other raspberry pi
   }
