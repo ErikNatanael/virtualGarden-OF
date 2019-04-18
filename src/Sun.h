@@ -22,9 +22,9 @@ public:
     if(strength_ == -1) {
       extraSize = 0.;
     } else {
-      maxPhase = ofClamp(strength_/80.0, 0.0, 1.0);
-      offset = ofClamp((strength_-80.0)/100., 0.0, 1.0);
-      extraSize = ofMap((strength_-80.0)/300., 0., 1., 1.0, 3.0);
+      maxPhase = ofClamp(strength_/100.0, 0.0, 1.0);
+      offset = ofClamp((strength_-100.0)/200., 0.0, 1.0);
+      extraSize = ofMap((strength_-100.0)/500., 0., 1., 1.0, 3.0);
     }
     phase = sin(ofGetElapsedTimef()*0.3);
     phase = ofMap(phase, -1.0, 1.0, offset, maxPhase);

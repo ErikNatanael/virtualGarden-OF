@@ -556,7 +556,7 @@ bool is_number(const std::string& s)
 }
 
 void ofApp::parseSerialData() {
-  //cout << currentMessage.str() << endl;
+  cout << currentMessage.str() << endl;
   vector<float> values(5, -1);
   string v;
   int i = 0;
