@@ -38,6 +38,7 @@ public:
   int energyReserveRequirement = 0;
   float  growBiggerRequirement = 100;
   float passiveEnergyGain = 10.5;
+  double totalEnergyGained = 0;
 
   int startingGrowthPoints = 300;
   float w = ofRandom(50, 150);
@@ -222,7 +223,7 @@ public:
             branch_ptr newBranch = b->next();
             newBranch->thicknessGrowth *= thicknessMul;
             if(branchType == BranchVisual::RANDOM) {
-              newBranch->visualType = static_cast<BranchVisual>(ofRandom((int)BranchVisual::RANDOM - 1));
+              newBranch->visualType = static_cast<BranchVisual>(ofRandom((int)BranchVisual::RANDOM-1));
             } else {
               newBranch->visualType = branchType;
             }
@@ -324,7 +325,7 @@ public:
         if(visualType == TreeVisual::DIGITAL)
           branches[i]->show(branchColorByIndex(i), totalTime);
         else
-          branches[i]->show(branches[i]->calculateBranchColor(), totalTime, redraw);
+          branches[i]->show(branches[i]->calculateBranchColor(totalEnergyGained), totalTime, redraw);
       }
 
       if(doLooseBranches) {
@@ -452,11 +453,13 @@ public:
       for (int i = leaves.size()-1; i >= 0; i--) {
         auto lPtr = leaves[i];
         energy += lPtr->getEnergy(sun);
+        totalEnergyGained += lPtr->getEnergy(sun);
         if (lPtr->dead) leaves.erase(leaves.begin() + i);
       }
     }
 
     energy += passiveEnergyGain;
+    totalEnergyGained += passiveEnergyGain;
 
     for (int i = 0; i < branches.size(); i++) {
       branches[i]->update(dt);

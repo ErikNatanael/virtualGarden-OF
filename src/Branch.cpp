@@ -44,16 +44,26 @@ void Branch::show(ofColor col, float totalTime, bool redraw) {
       if(isDead) drawTo = deadStartPos;
       else       drawTo = parent->pos;
 
-      if(thickness < 10) {
+      float w = pos.x - drawTo.x;
+      float h = pos.y - drawTo.y;
+
+      if (visualType == BranchVisual::SOLID || visualType == BranchVisual::GREEN) {
         ofSetLineWidth(thickness);
         ofDrawLine(pos.x, pos.y, drawTo.x, drawTo.y);
       } else {
-        float w = pos.x - drawTo.x;
-        float h = pos.y - drawTo.y;
-        ofDrawEllipse(pos.x, pos.y, abs(w) + thickness, abs(h)*2 + thickness*.5);
-        // weird digital artefact trees
-        if(visualType == BranchVisual::DIGITAL)
-          ofDrawRectangle(pos.x, pos.y, abs(w)*thickness, 2);
+        if(thickness < 10) {
+          ofSetLineWidth(thickness);
+          ofDrawLine(pos.x, pos.y, drawTo.x, drawTo.y);
+        } else {
+          if(visualType == BranchVisual::DIGITAL) {
+            ofDrawRectangle(pos.x, pos.y, abs(w)*thickness, 1);
+            ofSetLineWidth(thickness);
+            ofDrawLine(pos.x, pos.y, drawTo.x, drawTo.y);
+          }
+          else {
+            ofDrawEllipse(pos.x, pos.y, abs(w) + thickness, abs(h)*2 + thickness*.5);
+          }
+        }
       }
       needsRedraw = false;
     }
@@ -225,9 +235,10 @@ leaf_ptr Branch::addLeaf() {
   return newLeaf;
 }
 
-ofColor Branch::calculateBranchColor() {
+ofColor Branch::calculateBranchColor(double totalEnergyGained) {
   float r,g,b,a;
   float branchSpecific = (thicknessGrowth-0.01)/0.02; // gives the branch specific number 0-1
+  ofColor c;
   // green to red as branches get thicker
   if(visualType == BranchVisual::RED) {
     r = thickness*7;
@@ -237,9 +248,24 @@ ofColor Branch::calculateBranchColor() {
   } else if (visualType == BranchVisual::GREEN) {
     // light on dark
     float bright = ofClamp(255 - thickness*7, 10, 255);
-    r = bright + (1 - (hp/maxHp)) * 150;
+    r = bright - 150 + (1 - (hp/maxHp)) * 150;
     g = bright - 50 + branchSpecific*50;
-    b = 255 - bright;
+    b = r;
+    a = 255;
+  } else if (visualType == BranchVisual::SOLID) {
+    float hue = fmod(ofGetElapsedTimef(), 255);
+    float saturation = ofMap(totalEnergyGained, 0, 1000000, 50, 255);
+    float brightness = 255;
+    r = hue;
+    g = saturation;
+    b = brightness;
+    a = 255;
+  } else if (visualType == BranchVisual::DIGITAL) {
+    // light on dark
+    float colour = branchSpecific > 0.5;
+    r = 255*colour;
+    b = 255*colour;
+    g = 50 + colour*200;
     a = 255;
   } else {
     r = 100 + branchSpecific * 155.0;
@@ -252,5 +278,11 @@ ofColor Branch::calculateBranchColor() {
   g = ofClamp(g, 0, 255);
   b = ofClamp(b, 0, 255);
   a = ofClamp(a, 0, 255);
-  return ofColor(r, g, b, a);
+
+  if(visualType == BranchVisual::SOLID) {
+    c = ofColor::fromHsb(r, g, b, a);
+  } else {
+    c = ofColor(r, g, b, a);
+  }
+  return c;
 }

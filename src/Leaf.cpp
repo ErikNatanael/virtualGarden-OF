@@ -8,11 +8,12 @@ Leaf::Leaf(float angle_) {
     angle = angle*-1;
   }
   size = 1;
-  fillCol = ofColor(100, 200, 100, alpha);
-  maxSize = ofRandom(7, 15);
+
+  maxSize = ofRandom(3, 10);
 
   lifeTime = 30.;
   randomSeed = ofRandom(100);
+  fillCol = ofColor(100, 170 + randomSeed/2, 100, alpha);
 
   hp = 2;
   maxHp = 2;

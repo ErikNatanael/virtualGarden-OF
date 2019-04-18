@@ -215,10 +215,10 @@ void ofApp::update(){
   //     flickerDeadTrees = ofRandom(40, 80);
   //   }
   // }
-  if(ofRandomuf() > 0.995) {
+  if(ofRandomuf() > 0.999) {
     showDeadTrees = !showDeadTrees;
   }
-  showDeadTrees = true;
+  //showDeadTrees = true;
 
   // make dead trees fade on their own fbo
   if(ofGetFrameNum() % 150 == 0 && !pause) {
@@ -268,7 +268,7 @@ void ofApp::draw(){
     ofSetColor(0, 30);
     ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
     ofPushMatrix();
-    if(ofRandomuf() > 0.9) ofTranslate(pow(ofRandomuf(), 3)*14, ofRandomf()*1);
+    if(ofRandomuf() > 0.9) ofTranslate(pow(ofRandomuf(), 5)*14, ofRandomf()*1);
     ofSetColor(255, 200);
     deadTreesFbo.draw(0, 0);
     ofPopMatrix();
@@ -601,7 +601,7 @@ void ofApp::makeNewTree() {
     newTree.branchType = BranchVisual::GREEN;
   }
   if(temperature1 > 18) {
-    newTree.passiveEnergyGain = pow(ofRandomuf(), 2)*temperature1*50 + ((temperature1-17)*8);
+    newTree.passiveEnergyGain = pow(ofRandomuf(), 2)*temperature1*40 + ((temperature1-17)*2);
   } else {
     newTree.passiveEnergyGain = pow(ofRandomuf(), 2)*temperature1 + 5;
   }

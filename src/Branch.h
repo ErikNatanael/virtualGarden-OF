@@ -5,7 +5,7 @@
 #include "Leaf.h"
 #include <memory>
 
-enum struct BranchVisual {GREEN, DIGITAL, RED, RANDOM};
+enum struct BranchVisual {GREEN, DIGITAL, RED, SOLID, RANDOM};
 
 // std::enable_shared_from_this<Branch> is an easy way to create a shared_ptr
 // from an instance of an object (which the next method needs to do)
@@ -51,7 +51,7 @@ public:
   float fillHP(float energy);
   void killBranch(vector<std::shared_ptr<Branch> >& killedBranches);
   leaf_ptr addLeaf();
-  ofColor calculateBranchColor();
+  ofColor calculateBranchColor(double totalEnergyGained);
 
 };
 
