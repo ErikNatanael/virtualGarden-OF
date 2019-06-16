@@ -63,7 +63,7 @@ public:
 
   ofFbo fbo;
   int redrawCounter = 0;
-  int framesBetweenRedraw = 30;
+  int framesBetweenRedraw = 1; // can be used to save on processing on slower systems (e.g. Raspberry Pi:s)
 
 
   Tree(glm::vec2 rootPos) {

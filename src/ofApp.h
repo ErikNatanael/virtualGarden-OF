@@ -33,6 +33,7 @@ class ofApp : public ofBaseApp{
 		void sendOscData();
 		void readSerialData();
 		void parseSerialData();
+		void simulateSensorData(float dt);
 		void makeNewTree();
 
 		ofTrueTypeFont font;
@@ -70,8 +71,8 @@ class ofApp : public ofBaseApp{
 		int motionTrackingPoints = 20;
 		float temperature1 = 19;
 		float temperature2 = 19;
-		int humidity = 47;
-		int light = 50;
+		float humidity = 47;
+		int light = 200;
 		float fluorescence = 0;
 
 		float resetTreeTime = 0;

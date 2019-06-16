@@ -79,8 +79,10 @@ void ofApp::update(){
     makeNewTree();
   }
 
-  receiveOscMessages();
-  readSerialData();
+  // receiveOscMessages();
+  // readSerialData();
+  simulateSensorData(dt);
+  
 
   if(!pause) {
     // simplify tree if frameRate drops too low
@@ -601,11 +603,30 @@ void ofApp::makeNewTree() {
     newTree.branchType = BranchVisual::GREEN;
   }
   if(temperature1 > 18) {
-    newTree.passiveEnergyGain = pow(ofRandomuf(), 2)*temperature1*40 + ((temperature1-17)*2);
+    newTree.passiveEnergyGain = (pow(ofRandomuf(), 2)*temperature1*40 + ((temperature1-17)*2))*0.5;
   } else {
-    newTree.passiveEnergyGain = pow(ofRandomuf(), 2)*temperature1 + 5;
+    newTree.passiveEnergyGain = (pow(ofRandomuf(), 2)*temperature1 + 5)*0.5;
   }
   trees.push_back(newTree);
 
   simplificationThresh = 1;
+}
+
+void ofApp::simulateSensorData(float dt) {
+  static float humidityGoal = 47;
+  float humidityDiff = humidityGoal - humidity;
+  if(abs(humidityDiff) > 0.05) {
+    humidity += humidityDiff * 0.2 * dt;
+  } else {
+    humidityGoal = ofRandom(30, 100);
+  }
+  //cout << "humidityGoal: " << humidityGoal << " humidityDiff: " << humidityDiff << endl;
+  
+  static float temperature1Goal = 18;
+  float temperature1Diff = temperature1Goal - temperature1;
+  if(abs(temperature1Diff) > 0.05) {
+    temperature1 += temperature1Diff * 0.01 * dt;
+  } else {
+    temperature1Goal = ofRandom(17, 21);
+  }
 }
